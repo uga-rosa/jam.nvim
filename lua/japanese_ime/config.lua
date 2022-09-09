@@ -1,7 +1,7 @@
 local M = {}
 
 M.config = {
-    keyLayout = "japanese_ime.data.azik",
+    keyLayout = "japanese_ime.keylayout.azik",
 }
 
 ---@param opt table
