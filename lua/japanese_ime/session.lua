@@ -47,6 +47,11 @@ function Session:complete()
     self.nodes:current():complete()
 end
 
+---@param delta integer
+function Session:insert_item(delta)
+    self.nodes:current():insert_relative(delta)
+end
+
 ---@param dir 1 | -1
 function Session:move(dir)
     if vim.b.ime_mode ~= "convert" then

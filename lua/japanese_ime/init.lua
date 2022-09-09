@@ -10,8 +10,8 @@ end
 
 local function map_set()
     vim.keymap.set("i", "<Space>", M.complete, { buffer = true })
-    vim.keymap.set("i", "<C-n>", M.select_next_item, { buffer = true })
-    vim.keymap.set("i", "<C-p>", M.select_prev_item, { buffer = true })
+    vim.keymap.set("i", "<C-n>", M.insert_next_item, { buffer = true })
+    vim.keymap.set("i", "<C-p>", M.insert_prev_item, { buffer = true })
     vim.keymap.set("i", "<C-j>", M.next, { buffer = true })
     vim.keymap.set("i", "<C-k>", M.prev, { buffer = true })
     vim.keymap.set("i", "<CR>", M.confirm, { buffer = true })
@@ -42,12 +42,12 @@ function M.complete()
     session:complete()
 end
 
-function M.select_next_item()
-    session.nodes:current():insert_relative(1)
+function M.insert_next_item()
+    session:insert_item(1)
 end
 
-function M.select_prev_item()
-    session.nodes:current():insert_relative(-1)
+function M.insert_prev_item()
+    session:insert_item(-1)
 end
 
 function M.next()
