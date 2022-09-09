@@ -73,9 +73,10 @@ function Abbrev:start()
         group = aug_name,
         buffer = 0,
         callback = function()
-            if vim.b.ime_mode == "input" then
-                self:replace()
+            if vim.b.ime_mode == "convert" then
+                require("japanese_ime.session"):confirm()
             end
+            self:replace()
         end,
     })
 end
