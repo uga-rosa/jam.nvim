@@ -35,6 +35,11 @@ function safe_array.new(t)
     }, safe_array)
 end
 
+---@return unknown[]
+function safe_array:unpack()
+    return self.raw
+end
+
 ---@param func fun(x: any): any
 ---@return safe_array
 function safe_array:map(func)
@@ -46,17 +51,12 @@ function safe_array:map(func)
     return safe_array.new(new)
 end
 
----@param func fun(x: any): boolean
----@return safe_array
-function safe_array:filter(func)
+---@param func fun(x: any)
+function safe_array:apply(func)
     vim.validate({ func = { func, "f" } })
-    local new = {}
     for _, v in ipairs(self.raw) do
-        if func(v) then
-            table.insert(new, v)
-        end
+        func(v)
     end
-    return safe_array.new(new)
 end
 
 ---@param sep? string
@@ -73,6 +73,15 @@ function safe_array:concat(sep, i, j)
     i = vim.F.if_nil(i, 1)
     j = vim.F.if_nil(j, #self.raw)
     return table.concat(self.raw, sep, i, j)
+end
+
+---@return Set
+function safe_array:to_set()
+    local new = {}
+    for _, v in ipairs(self.raw) do
+        new[v] = true
+    end
+    return new
 end
 
 return {

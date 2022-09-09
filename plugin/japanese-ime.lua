@@ -1,3 +1,6 @@
-local ime = require("japanese_ime")
+if vim.g.loaded_japanese_ime then
+    return
+end
+vim.g.loaded_japanese_ime = true
 
-vim.keymap.set("i", "<F2>", ime.start, {})
+require("japanese_ime").setup()

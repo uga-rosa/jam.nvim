@@ -1,7 +1,6 @@
 local api = vim.api
 
 local utf8 = require("japanese_ime.utf8")
-local config = require("japanese_ime.config")
 
 ---@class Abbrev
 ---@field layout table<string, string>[]
@@ -13,16 +12,14 @@ local aug_name = "japanese_ime_hiragana"
 
 function Abbrev:load()
     if self.layout == nil then
-        local keyLayout = config.get("keyLayout")
-        local ok, layout = pcall(require, keyLayout)
-        if ok then
-            self.layout = {}
-            for k, v in pairs(layout) do
-                if self.layout[#k] == nil then
-                    self.layout[#k] = {}
-                end
-                self.layout[#k][k] = v
+        local keyLayout = require("japanese_ime.config").get("keyLayout")
+        local layout = require(keyLayout)
+        self.layout = {}
+        for k, v in pairs(layout) do
+            if self.layout[#k] == nil then
+                self.layout[#k] = {}
             end
+            self.layout[#k][k] = v
         end
     end
 end
