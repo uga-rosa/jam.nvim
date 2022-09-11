@@ -34,24 +34,24 @@ function Keymap:restore()
     for _, m in ipairs(self.buffer_mappings) do
         api.nvim_buf_set_keymap(0, "i", m.lhs, m.rhs, m.opt)
     end
+    self.buffer_mappings = {}
 end
 
 ---@param lhs string | string[]
 ---@param rhs function | table<string, function>
 ---@param modes? string | string[]
 local function set(lhs, rhs, modes)
-    lhs = type(lhs) == "string" and { lhs } or lhs
+    lhs = utils.cast2tbl(lhs)
     vim.validate({
         lhs = { lhs, "t" },
     })
-    ---@cast lhs string[]
     if modes ~= nil then
-        modes = type(modes) == "string" and { modes } or modes
+        modes = utils.cast2tbl(modes)
         vim.validate({
             rhs = { rhs, "f" },
             modes = { modes, "t" },
         })
-        ---@cast modes string[]
+        ---@cast rhs function
         local mode_set = sa.new(modes):to_set()
 
         for _, l in ipairs(lhs) do
@@ -80,11 +80,10 @@ end
 
 ---@param lhs string | string[]
 local function del(lhs)
-    lhs = type(lhs) == "string" and { lhs } or lhs
+    lhs = utils.cast2tbl(lhs)
     vim.validate({
         lhs = { lhs, "t" },
     })
-    ---@cast lhs string[]
     for _, l in ipairs(lhs) do
         vim.keymap.del("i", l, { buffer = true })
     end
