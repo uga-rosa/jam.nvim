@@ -32,12 +32,12 @@ end
 
 ---@param char string
 function InputStatus:input(char)
-    if vim.b.ime_mode == "PreInput" then
+    if self.session.ime_mode == "PreInput" then
         if char:find("%s") then
             return
         else
             self:set_pos()
-            vim.b.ime_mode = "Input"
+            self.session:_mode_set("Input")
         end
     end
     self.end_col = self.end_col + 1
@@ -57,13 +57,17 @@ function InputStatus:update_display()
 end
 
 function InputStatus:update_buffer()
-    if vim.b.ime_mode ~= "Input" then
+    if self.session.ime_mode ~= "Input" then
         return
     end
     local current_line = api.nvim_get_current_line()
     current_line = utils.insert(current_line, self.display, self.start_pos[2], self.end_col)
     api.nvim_set_current_line(current_line)
     self.end_col = self.start_pos[2] + #self.display - 1
+    self:goto_end()
+end
+
+function InputStatus:goto_end()
     api.nvim_win_set_cursor(0, { self.start_pos[1], self.end_col })
 end
 

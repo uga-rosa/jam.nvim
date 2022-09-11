@@ -34,11 +34,11 @@ function action.prev()
 end
 
 function action.extend()
-    session.completeNodes:current():extend()
+    session:extend()
 end
 
 function action.shorten()
-    session.completeNodes:current():shorten()
+    session:shorten()
 end
 
 function action.confirm()

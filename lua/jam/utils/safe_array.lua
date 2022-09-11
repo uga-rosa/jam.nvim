@@ -54,6 +54,8 @@ function safe_array:concat(sep, i, j)
     return table.concat(self.raw, sep, i, j)
 end
 
+---@class Set table<any, boolean>
+
 ---@return Set
 function safe_array:to_set()
     local new = {}

@@ -47,19 +47,10 @@ local function set(lhs, rhs, modes)
     })
     ---@cast modes table
     modes = type(modes) == "string" and { modes } or modes
-    local mode_set = sa.new(modes)
-        :map(function(mode)
-            return string.lower(mode)
-        end)
-        :to_set()
-
-    local function is_enable()
-        local mode = vim.b.ime_mode:lower()
-        return mode_set[mode]
-    end
+    local mode_set = sa.new(modes):to_set()
 
     vim.keymap.set("i", lhs, function()
-        if is_enable() then
+        if mode_set[vim.b.ime_mode] then
             rhs()
         else
             utils.feedkey(lhs)

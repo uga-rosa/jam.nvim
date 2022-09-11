@@ -106,4 +106,13 @@ function utils.feedkey(key)
     api.nvim_feedkeys(api.nvim_replace_termcodes(key, true, false, true), "n", false)
 end
 
+---@param a string | string[]
+---@return string[]
+function utils.cast2tbl(a)
+    if type(a) == "table" then
+        return a
+    end
+    return { a }
+end
+
 return utils

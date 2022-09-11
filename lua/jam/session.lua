@@ -19,16 +19,15 @@ local aug_name = "jam"
 vim.b.ime_mode = ""
 
 ---@class Session
+---@field ime_mode ime_mode
 ---@field start_pos integer[] #(1,1) index
 ---@field completeNodes CompleteNodes
 ---@field input_status InputStatus
 local Session = {}
 
 function Session:start()
-    vim.b.ime_mode = "PreInput"
-    self.start_pos = utils.get_pos()
-    self.completeNodes = nil
-    self.input_status = InputStatus.new(self)
+    self:reset()
+    self:_mode_set("PreInput")
     api.nvim_create_augroup(aug_name, { clear = true })
     api.nvim_create_autocmd("InsertCharPre", {
         group = aug_name,
@@ -53,13 +52,34 @@ function Session:start()
     })
 end
 
+function Session:reset()
+    self.ime_mode = ""
+    self.start_pos = utils.get_pos()
+    self.completeNodes = nil
+    self.input_status = InputStatus.new(self)
+end
+
+---@param mode ime_mode
+function Session:_mode_set(mode)
+    self.ime_mode = mode
+    vim.b.ime_mode = mode
+end
+
+---@param modes ime_mode | ime_mode[]
+function Session:_mode_validate(modes)
+    modes = utils.cast2tbl(modes)
+    local set = sa.new(modes):to_set()
+    assert(set[self.ime_mode], "Called in invalid IME mode.")
+end
+
 function Session:backspace()
+    self:_mode_validate("Input")
     self.input_status:backspace()
 end
 
 function Session:complete()
-    vim.b.ime_mode = "Convert"
-    if self.completeNodes == nil then
+    self:_mode_validate({ "Input", "Convert" })
+    if self.ime_mode == "Input" then
         ---@type string
         local request = self.input_status.display
         local response = cgi.get_responce(request)
@@ -74,18 +94,18 @@ function Session:complete()
         self.completeNodes:new_response(response)
     end
     self.completeNodes:current():complete()
+    self:_mode_set("Convert")
 end
 
 ---@param delta integer
 function Session:insert_item(delta)
+    self:_mode_validate("Convert")
     self.completeNodes:current():insert_relative(delta)
 end
 
 ---@param dir 1 | -1
 function Session:move(dir)
-    if vim.b.ime_mode ~= "Convert" then
-        return
-    end
+    self:_mode_validate("Convert")
     if
         (dir == 1 and self.completeNodes:goto_next())
         or (dir == -1 and self.completeNodes:goto_prev())
@@ -94,22 +114,31 @@ function Session:move(dir)
     end
 end
 
+function Session:extend()
+    self:_mode_validate("Convert")
+    self.completeNodes:current():extend()
+end
+
+function Session:shorten()
+    self:_mode_validate("Convert")
+    self.completeNodes:current():shorten()
+end
+
 function Session:confirm()
-    if self.completeNodes then
+    self:_mode_validate({ "Input", "Convert" })
+    if self.ime_mode == "Input" then
+        self.input_status:goto_end()
+    else
         self.completeNodes:tail():move()
-    end
-    if pum.visible() then
         pum.close()
     end
-    self.start_pos = utils.get_pos()
-    self.completeNodes = nil
-    self.input_status = InputStatus.new(self)
-    vim.b.ime_mode = "PreInput"
+    self:reset()
+    self:_mode_set("PreInput")
 end
 
 function Session:exit()
     self:confirm()
-    vim.b.ime_mode = ""
+    self:_mode_set("")
     api.nvim_create_augroup(aug_name, { clear = true })
 end
 
