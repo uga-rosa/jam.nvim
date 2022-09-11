@@ -98,7 +98,7 @@ function utils.get_char(s, n)
     if not end_ then
         error("Out of bounds")
     end
-    return s:sub(start, end_)
+    return s:sub(start, end_ - 1)
 end
 
 ---@param key string
