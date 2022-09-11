@@ -7,6 +7,7 @@ return {
     mappings = {
         { "<Space>", action.complete, "input" },
         { "<C-h>", action.backspace, "input" },
+        { "<BS>", action.backspace, "input" },
         { "<C-n>", action.insert_next_item, "convert" },
         { "<C-p>", action.insert_prev_item, "convert" },
         { "<C-j>", action.next, "convert" },

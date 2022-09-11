@@ -9,6 +9,10 @@ function action.start()
     keymap:set()
 end
 
+function action.backspace()
+    session:backspace()
+end
+
 function action.complete()
     session:complete()
 end
@@ -30,11 +34,11 @@ function action.prev()
 end
 
 function action.extend()
-    session.nodes:current():extend()
+    session.completeNodes:current():extend()
 end
 
 function action.shorten()
-    session.nodes:current():shorten()
+    session.completeNodes:current():shorten()
 end
 
 function action.confirm()

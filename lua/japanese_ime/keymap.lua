@@ -1,10 +1,11 @@
 local api = vim.api
 
-local sa = require("japanese_ime.utils").sa
+local config = require("japanese_ime.config")
+local utils = require("japanese_ime.utils")
+local sa = require("japanese_ime.utils.safe_array")
 
 local Keymap = {
     buffer_mappings = {},
-    mappings = {},
 }
 
 local function fix(map)
@@ -46,12 +47,22 @@ local function set(lhs, rhs, modes)
     })
     ---@cast modes table
     modes = type(modes) == "string" and { modes } or modes
+    local mode_set = sa.new(modes)
+        :map(function(mode)
+            return string.lower(mode)
+        end)
+        :to_set()
 
-    local mode_set = sa.new(modes):to_set()
+    local function is_enable()
+        local mode = vim.b.ime_mode:lower()
+        return mode_set[mode]
+    end
 
     vim.keymap.set("i", lhs, function()
-        if mode_set[vim.b.ime_mode] then
+        if is_enable() then
             rhs()
+        else
+            utils.feedkey(lhs)
         end
     end, { buffer = true })
 end
@@ -62,13 +73,13 @@ local function del(lhs)
 end
 
 function Keymap:set()
-    sa.new(self.mappings):apply(function(x)
+    sa.new(config.get("mappings")):apply(function(x)
         set(unpack(x))
     end)
 end
 
 function Keymap:del()
-    sa.new(self.mappings):apply(function(x)
+    sa.new(config.get("mappings")):apply(function(x)
         del(x[1])
     end)
 end
