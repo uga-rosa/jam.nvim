@@ -3,4 +3,4 @@ if vim.g.loaded_japanese_ime then
 end
 vim.g.loaded_japanese_ime = true
 
-require("japanese_ime").setup()
+require("jam").setup()

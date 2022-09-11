@@ -1,7 +1,7 @@
 local api = vim.api
 local uv = vim.loop
 
-local utf8 = require("japanese_ime.utils.utf8")
+local utf8 = require("jam.utils.utf8")
 
 local utils = {}
 

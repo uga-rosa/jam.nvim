@@ -1,13 +1,13 @@
 local api = vim.api
 
-local CompleteNodes = require("japanese_ime.node.complete_nodes")
-local InputStatus = require("japanese_ime.input.status")
-local cgi = require("japanese_ime.cgi")
-local pum = require("japanese_ime.utils.pum")
-local utils = require("japanese_ime.utils")
-local sa = require("japanese_ime.utils.safe_array")
+local CompleteNodes = require("jam.node.complete_nodes")
+local InputStatus = require("jam.input.status")
+local cgi = require("jam.cgi")
+local pum = require("jam.utils.pum")
+local utils = require("jam.utils")
+local sa = require("jam.utils.safe_array")
 
-local aug_name = "japanese_ime"
+local aug_name = "jam"
 
 ---@alias ime_mode
 --- | '""'

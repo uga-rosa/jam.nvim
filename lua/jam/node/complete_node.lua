@@ -1,8 +1,8 @@
 local api = vim.api
 
-local utf8 = require("japanese_ime.utils.utf8")
-local utils = require("japanese_ime.utils")
-local pum = require("japanese_ime.utils.pum")
+local utf8 = require("jam.utils.utf8")
+local utils = require("jam.utils")
+local pum = require("jam.utils.pum")
 
 ---@alias complete_items {word: string}[]
 

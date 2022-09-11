@@ -1,8 +1,8 @@
 local api = vim.api
 
-local config = require("japanese_ime.config")
-local utils = require("japanese_ime.utils")
-local sa = require("japanese_ime.utils.safe_array")
+local config = require("jam.config")
+local utils = require("jam.utils")
+local sa = require("jam.utils.safe_array")
 
 local Keymap = {
     buffer_mappings = {},

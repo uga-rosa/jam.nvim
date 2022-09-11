@@ -1,4 +1,4 @@
-local action = require("japanese_ime.action")
+local action = require("jam.action")
 
 return {
     -- "default" and "azik" is available.

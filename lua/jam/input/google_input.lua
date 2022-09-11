@@ -1,7 +1,7 @@
 local fn = vim.fn
 
-local utils = require("japanese_ime.utils")
-local config = require("japanese_ime.config")
+local utils = require("jam.utils")
+local config = require("jam.config")
 
 ---@class FilterRule
 ---@field input string

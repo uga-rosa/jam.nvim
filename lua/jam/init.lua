@@ -1,4 +1,4 @@
-local config = require("japanese_ime.config")
+local config = require("jam.config")
 
 local M = {}
 

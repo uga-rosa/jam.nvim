@@ -8,7 +8,7 @@ function M.setup(opt)
         opt = { opt, "t" },
     })
 
-    local default = require("japanese_ime.config.default")
+    local default = require("jam.config.default")
     if opt.disable_default_mappings then
         default.mappings = {}
     end

@@ -1,7 +1,7 @@
 local api = vim.api
 
-local GoogleInput = require("japanese_ime.input.google_input")
-local utils = require("japanese_ime.utils")
+local GoogleInput = require("jam.input.google_input")
+local utils = require("jam.utils")
 
 ---@class InputStatus
 ---@field output string

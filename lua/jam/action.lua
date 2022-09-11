@@ -1,5 +1,5 @@
-local session = require("japanese_ime.session")
-local keymap = require("japanese_ime.keymap")
+local session = require("jam.session")
+local keymap = require("jam.keymap")
 
 local action = {}
 

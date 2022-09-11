@@ -1,8 +1,8 @@
 local api = vim.api
 
-local CompleteNode = require("japanese_ime.node.complete_node")
-local utils = require("japanese_ime.utils")
-local sa = require("japanese_ime.utils.safe_array")
+local CompleteNode = require("jam.node.complete_node")
+local utils = require("jam.utils")
+local sa = require("jam.utils.safe_array")
 
 ---@class CompleteNodes
 ---@field origin string
