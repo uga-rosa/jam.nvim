@@ -44,6 +44,13 @@ function Session:start()
             self.input_status:update_buffer()
         end,
     })
+    api.nvim_create_autocmd("InsertLeavePre", {
+        group = aug_name,
+        buffer = 0,
+        callback = function()
+            self:exit()
+        end,
+    })
 end
 
 function Session:backspace()
