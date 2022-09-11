@@ -72,8 +72,13 @@ function InputStatus:backspace()
         return
     end
     local erased = utils.get_char(self.display, -1)
-    if #self.google_input.input_buffer > 0 then
+    if #self.google_input.input_buffer == 1 then
+        self.google_input.input_buffer = ""
+        self.google_input.tmp_fixed = nil
+        self.google_input.next_candidates = self.google_input.rules
+    elseif #self.google_input.input_buffer > 1 then
         self.google_input.input_buffer = self.google_input.input_buffer:sub(1, -#erased - 1)
+        self.google_input:input(self.google_input.input_buffer)
     else
         self.output = self.output:sub(1, -#erased - 1)
     end
