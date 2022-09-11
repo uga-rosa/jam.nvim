@@ -1,24 +1,3 @@
-local api = vim.api
-
-local utils = {}
-
----@param origin string
----@param word string
----@param start integer
----@param end_ integer
----@return string
-function utils.insert(origin, word, start, end_)
-    return origin:sub(1, start - 1) .. word .. origin:sub(end_ + 1)
-end
-
----Get current cursor position ((1,1)-index)
----@return integer[]
-function utils.get_pos()
-    local pos = api.nvim_win_get_cursor(0)
-    pos[2] = pos[2] + 1
-    return pos
-end
-
 ---@class safe_array
 ---@field raw unknown[]
 ---@field len integer
@@ -84,7 +63,4 @@ function safe_array:to_set()
     return new
 end
 
-return {
-    utils = utils,
-    sa = safe_array,
-}
+return safe_array
