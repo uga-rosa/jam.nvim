@@ -61,13 +61,12 @@ function CompleteNodes.new(origin, res, start_pos, session)
     result:fix_nodes()
     result:update_buffer()
 
-    dump(result)
     return result
 end
 
 function CompleteNodes:fix_nodes()
     local node = self:head()
-    while not node:is_dummy() do
+    while node:is_valid() do
         table.insert(self.nodes, node)
         node = node.next
     end
@@ -96,6 +95,14 @@ function CompleteNodes:tail()
     return self._dummy_tail.prev
 end
 
+function CompleteNodes:is_head()
+    return self == self:head()
+end
+
+function CompleteNodes:is_tail()
+    return self == self:tail()
+end
+
 ---@return CompleteNode
 function CompleteNodes:current()
     return self.selected_node
@@ -104,18 +111,35 @@ end
 ---Return whether the move was successful or not.
 ---@return boolean
 function CompleteNodes:goto_next()
-    if not self.selected_node.next:is_dummy() then
+    if self.selected_node.next:is_valid() then
         self.selected_node = self.selected_node.next
         return true
     end
     return false
 end
 
----Return whether the move was successful or not.
 ---@return boolean
 function CompleteNodes:goto_prev()
-    if not self.selected_node.prev:is_dummy() then
+    if self.selected_node.prev:is_valid() then
         self.selected_node = self.selected_node.prev
+        return true
+    end
+    return false
+end
+
+---@return boolean
+function CompleteNodes:goto_head()
+    if not self:is_head() then
+        self.selected_node = self:head()
+        return true
+    end
+    return false
+end
+
+---@return boolean
+function CompleteNodes:goto_tail()
+    if not self:is_tail() then
+        self.selected_node = self:tail()
         return true
     end
     return false

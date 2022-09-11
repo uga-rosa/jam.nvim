@@ -25,12 +25,20 @@ function action.insert_prev_item()
     session:insert_item(-1)
 end
 
-function action.next()
-    session:move(1)
+function action.goto_next()
+    session:goto_next()
 end
 
-function action.prev()
-    session:move(-1)
+function action.goto_prev()
+    session:goto_prev()
+end
+
+function action.goto_head()
+    session:goto_head()
+end
+
+function action.goto_tail()
+    session:goto_tail()
 end
 
 function action.extend()

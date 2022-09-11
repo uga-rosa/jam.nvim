@@ -61,6 +61,10 @@ function CompleteNode:is_dummy()
     return self.origin == nil
 end
 
+function CompleteNode:is_valid()
+    return not self:is_dummy()
+end
+
 function CompleteNode:complete()
     self:move()
     pum.open(self.start, self.candidates)
@@ -74,7 +78,7 @@ function CompleteNode:insert_relative(delta)
     self.end_ = self.start + #selected - 1
 
     local next = self.next
-    while not next:is_dummy() do
+    while next:is_valid() do
         next.start = next.prev.end_ + 1
         next.end_ = next.start + #next.selected_candidate - 1
         next = next.next
@@ -87,8 +91,9 @@ function CompleteNode:move()
 end
 
 function CompleteNode:extend()
-    if not self.next:is_dummy() then
+    if self.next:is_valid() then
         local next_char = utils.get_char(self.next.origin, 1)
+        print(next_char)
         self.origin = self.origin .. next_char
         self.end_ = self.end_ + #next_char
 
@@ -111,7 +116,7 @@ function CompleteNode:shorten()
         self.origin = self.origin:sub(1, -(#last_char + 1))
         self.end_ = self.end_ - #last_char
 
-        if not self.next:is_dummy() then
+        if self.next:is_valid() then
             self.next.origin = last_char .. self.next.origin
             self.next.start = self.next.start - #last_char
         else

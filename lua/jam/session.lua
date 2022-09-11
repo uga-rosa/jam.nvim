@@ -103,13 +103,26 @@ function Session:insert_item(delta)
     self.completeNodes:current():insert_relative(delta)
 end
 
----@param dir 1 | -1
-function Session:move(dir)
-    self:_mode_validate("Convert")
-    if
-        (dir == 1 and self.completeNodes:goto_next())
-        or (dir == -1 and self.completeNodes:goto_prev())
-    then
+function Session:goto_next()
+    if self.completeNodes:goto_next() then
+        self.completeNodes:current():complete()
+    end
+end
+
+function Session:goto_prev()
+    if self.completeNodes:goto_prev() then
+        self.completeNodes:current():complete()
+    end
+end
+
+function Session:goto_head()
+    if self.completeNodes:goto_head() then
+        self.completeNodes:current():complete()
+    end
+end
+
+function Session:goto_tail()
+    if self.completeNodes:goto_tail() then
         self.completeNodes:current():complete()
     end
 end
