@@ -36,31 +36,58 @@ function Keymap:restore()
     end
 end
 
----@param lhs string
----@param rhs function
----@param modes string | string[]
+---@param lhs string | string[]
+---@param rhs function | table<string, function>
+---@param modes? string | string[]
 local function set(lhs, rhs, modes)
+    lhs = type(lhs) == "string" and { lhs } or lhs
     vim.validate({
-        lhs = { lhs, "s" },
-        rhs = { rhs, "f" },
-        modes = { modes, { "s", "t" } },
+        lhs = { lhs, "t" },
     })
-    ---@cast modes table
-    modes = type(modes) == "string" and { modes } or modes
-    local mode_set = sa.new(modes):to_set()
+    ---@cast lhs string[]
+    if modes ~= nil then
+        modes = type(modes) == "string" and { modes } or modes
+        vim.validate({
+            rhs = { rhs, "f" },
+            modes = { modes, "t" },
+        })
+        ---@cast modes string[]
+        local mode_set = sa.new(modes):to_set()
 
-    vim.keymap.set("i", lhs, function()
-        if mode_set[vim.b.ime_mode] then
-            rhs()
-        else
-            utils.feedkey(lhs)
+        for _, l in ipairs(lhs) do
+            vim.keymap.set("i", l, function()
+                if mode_set[vim.b.ime_mode] then
+                    rhs()
+                else
+                    utils.feedkey(l)
+                end
+            end, { buffer = true })
         end
-    end, { buffer = true })
+    else
+        vim.validate({ rhs = { rhs, "t" } })
+        ---@cast rhs table<string, function>
+        for _, l in ipairs(lhs) do
+            vim.keymap.set("i", l, function()
+                if rhs[vim.b.ime_mode] then
+                    rhs[vim.b.ime_mode]()
+                else
+                    utils.feedkey(l)
+                end
+            end, { buffer = true })
+        end
+    end
 end
 
----@param lhs string
+---@param lhs string | string[]
 local function del(lhs)
-    vim.keymap.del("i", lhs, { buffer = true })
+    lhs = type(lhs) == "string" and { lhs } or lhs
+    vim.validate({
+        lhs = { lhs, "t" },
+    })
+    ---@cast lhs string[]
+    for _, l in ipairs(lhs) do
+        vim.keymap.del("i", l, { buffer = true })
+    end
 end
 
 function Keymap:set()
