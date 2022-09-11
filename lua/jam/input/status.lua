@@ -39,6 +39,8 @@ function InputStatus:input(char)
             self:set_pos()
             self.session:_mode_set("Input")
         end
+    elseif self.session.ime_mode ~= "Input" then
+        return
     end
     self.end_col = self.end_col + 1
     local result = self.google_input:input(char)
@@ -64,10 +66,6 @@ function InputStatus:update_buffer()
     current_line = utils.insert(current_line, self.display, self.start_pos[2], self.end_col)
     api.nvim_set_current_line(current_line)
     self.end_col = self.start_pos[2] + #self.display - 1
-    self:goto_end()
-end
-
-function InputStatus:goto_end()
     api.nvim_win_set_cursor(0, { self.start_pos[1], self.end_col })
 end
 

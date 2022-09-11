@@ -2,6 +2,7 @@ local api = vim.api
 
 local CompleteNodes = require("jam.node.complete_nodes")
 local InputStatus = require("jam.input.status")
+local keymap = require("jam.keymap")
 local cgi = require("jam.cgi")
 local pum = require("jam.utils.pum")
 local utils = require("jam.utils")
@@ -50,6 +51,8 @@ function Session:start()
             self:exit()
         end,
     })
+    keymap:store()
+    keymap:set()
 end
 
 function Session:reset()
@@ -69,7 +72,7 @@ end
 function Session:_mode_validate(modes)
     modes = utils.cast2tbl(modes)
     local set = sa.new(modes):to_set()
-    assert(set[self.ime_mode], "Called in invalid IME mode.")
+    assert(set[self.ime_mode], "Called in invalid IME mode: " .. self.ime_mode)
 end
 
 function Session:backspace()
@@ -97,6 +100,16 @@ function Session:complete()
     self:_mode_set("Convert")
 end
 
+function Session:cancel()
+    self:_mode_validate("Convert")
+    self.completeNodes:tail():move()
+    pum.close()
+    self.input_status.end_col = self.completeNodes.end_
+    self:_mode_set("Input")
+    self.input_status:update_buffer()
+    self.completeNodes = nil
+end
+
 ---@param delta integer
 function Session:insert_item(delta)
     self:_mode_validate("Convert")
@@ -104,24 +117,28 @@ function Session:insert_item(delta)
 end
 
 function Session:goto_next()
+    self:_mode_validate("Convert")
     if self.completeNodes:goto_next() then
         self.completeNodes:current():complete()
     end
 end
 
 function Session:goto_prev()
+    self:_mode_validate("Convert")
     if self.completeNodes:goto_prev() then
         self.completeNodes:current():complete()
     end
 end
 
 function Session:goto_head()
+    self:_mode_validate("Convert")
     if self.completeNodes:goto_head() then
         self.completeNodes:current():complete()
     end
 end
 
 function Session:goto_tail()
+    self:_mode_validate("Convert")
     if self.completeNodes:goto_tail() then
         self.completeNodes:current():complete()
     end
@@ -139,9 +156,7 @@ end
 
 function Session:confirm()
     self:_mode_validate({ "Input", "Convert" })
-    if self.ime_mode == "Input" then
-        self.input_status:goto_end()
-    else
+    if self.ime_mode == "Convert" then
         self.completeNodes:tail():move()
         pum.close()
     end
@@ -150,9 +165,13 @@ function Session:confirm()
 end
 
 function Session:exit()
-    self:confirm()
+    if self.ime_mode == "Input" or self.ime_mode == "Convert" then
+        self:confirm()
+    end
     self:_mode_set("")
     api.nvim_create_augroup(aug_name, { clear = true })
+    keymap:del()
+    keymap:restore()
 end
 
 return Session

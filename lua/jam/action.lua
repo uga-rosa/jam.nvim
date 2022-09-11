@@ -1,12 +1,9 @@
 local session = require("jam.session")
-local keymap = require("jam.keymap")
 
 local action = {}
 
 function action.start()
     session:start()
-    keymap:store()
-    keymap:set()
 end
 
 function action.backspace()
@@ -15,6 +12,10 @@ end
 
 function action.complete()
     session:complete()
+end
+
+function action.cancel()
+    session:cancel()
 end
 
 function action.insert_next_item()
@@ -55,8 +56,6 @@ end
 
 function action.exit()
     session:exit()
-    keymap:del()
-    keymap:restore()
 end
 
 return action
