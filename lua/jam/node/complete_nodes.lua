@@ -65,6 +65,7 @@ function CompleteNodes.new(origin, res, start_pos, session)
 end
 
 function CompleteNodes:fix_nodes()
+    self.nodes = {}
     local node = self:head()
     while node:is_valid() do
         table.insert(self.nodes, node)

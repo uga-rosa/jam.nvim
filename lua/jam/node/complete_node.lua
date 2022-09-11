@@ -93,7 +93,6 @@ end
 function CompleteNode:extend()
     if self.next:is_valid() then
         local next_char = utils.get_char(self.next.origin, 1)
-        print(next_char)
         self.origin = self.origin .. next_char
         self.end_ = self.end_ + #next_char
 
@@ -120,7 +119,7 @@ function CompleteNode:shorten()
             self.next.origin = last_char .. self.next.origin
             self.next.start = self.next.start - #last_char
         else
-            local new = CompleteNode.new(last_char, {}, self.end_ + 1, self.row)
+            local new = CompleteNode.new(last_char, { last_char }, self.end_ + 1, self.row)
             self.next.prev = new
             new.next = self.next
             self.next = new
