@@ -64,8 +64,19 @@ function GoogleInput.new()
 end
 
 function GoogleInput:LoadFilterRules()
-    local script_path = debug.getinfo(1, "S").source:sub(2)
-    local fname = fn.fnamemodify(script_path, ":h:h:h:h") .. "/data/" .. config.get("keyLayout")
+    local keyLayout = config.get("keyLayout")
+    local fname
+    if fn.filereadable(keyLayout) == 1 then
+        fname = keyLayout
+    elseif keyLayout == "default" or keyLayout == "azik" then
+        local script_path = debug.getinfo(1, "S").source:sub(2)
+        fname = fn.fnamemodify(script_path, ":h:h:h:h") .. "/data/" .. keyLayout
+    else
+        error(
+            "keyLayout must be 'default', 'azik', or the full path of your own key layout file: "
+                .. keyLayout
+        )
+    end
     local rules = {}
     for i, line in utils.lines(fname) do
         local input, output, next_input = unpack(vim.split(line, "%s"))

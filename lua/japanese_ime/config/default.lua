@@ -2,6 +2,7 @@ local action = require("japanese_ime.action")
 
 return {
     -- "default" and "azik" is available.
+    -- You can set the full path of your own key layout file to it.
     keyLayout = "default",
     start_key = "<C-q>",
     mappings = {
