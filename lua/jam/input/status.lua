@@ -70,6 +70,7 @@ function InputStatus:update_buffer()
     api.nvim_set_current_line(current_line)
     self.end_col = self.start_pos[2] + #self.display - 1
     api.nvim_win_set_cursor(0, { self.start_pos[1], self.end_col })
+    self.session:_update_highlight()
 end
 
 function InputStatus:backspace()
