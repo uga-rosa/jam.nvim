@@ -97,11 +97,11 @@ function CompleteNodes:tail()
 end
 
 function CompleteNodes:is_head()
-    return self == self:head()
+    return self:current() == self:head()
 end
 
 function CompleteNodes:is_tail()
-    return self == self:tail()
+    return self:current() == self:tail()
 end
 
 ---@return CompleteNode

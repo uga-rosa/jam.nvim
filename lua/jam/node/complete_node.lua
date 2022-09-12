@@ -59,12 +59,19 @@ function CompleteNode.new(origin, candidates, start_col, start_row)
     return setmetatable(new, { __index = CompleteNode })
 end
 
+---@return boolean
 function CompleteNode:is_dummy()
     return self.origin == nil
 end
 
+---@return boolean
 function CompleteNode:is_valid()
     return not self:is_dummy()
+end
+
+---@return boolean
+function CompleteNode:is_selected()
+    return self == self.parent:current()
 end
 
 function CompleteNode:complete()
@@ -133,6 +140,8 @@ function CompleteNode:shorten()
             self.next.start = self.next.start - #last_char
         else
             local new = CompleteNode.new(last_char, { last_char }, self.end_ + 1, self.row)
+            new.parent = self.parent
+            new.session = self.session
             self.next.prev = new
             new.next = self.next
             self.next = new

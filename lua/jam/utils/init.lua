@@ -89,14 +89,14 @@ end
 function utils.get_char(s, n)
     local start = utf8.offset(s, n)
     if not start then
-        error("Out of bounds")
+        error(("start is out of bounds. s: %s, n: %s"):format(s, n))
     end
-    if n == -1 then
+    if n == 1 or n == -1 then
         return s:sub(start)
     end
     local end_ = utf8.offset(s, n + 1)
     if not end_ then
-        error("Out of bounds")
+        error(("end_ is out of bounds. s: %s, n: %s"):format(s, n))
     end
     return s:sub(start, end_ - 1)
 end
