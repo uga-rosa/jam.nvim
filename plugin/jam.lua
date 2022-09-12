@@ -5,15 +5,18 @@ vim.g.loaded_jam = true
 
 require("jam").setup()
 
-local bg = vim.api.nvim_get_hl_by_name("Normal", "").background
+local ok, normal = pcall(vim.api.nvim_get_hl_by_name, "Normal", true)
 local bg_1, bg_2
-local diff = tonumber("101010", 16)
-if bg < tonumber("FFFFFF", 16) - 2 * diff then
-    bg_1 = bg + diff
-    bg_2 = bg_1 + diff
-else
-    bg_1 = bg - diff
-    bg_2 = bg_1 - diff
+if ok and normal.background then
+    local bg = normal.background
+    local diff = tonumber("101010", 16)
+    if bg < tonumber("FFFFFF", 16) - 2 * diff then
+        bg_1 = bg + diff
+        bg_2 = bg_1 + diff
+    else
+        bg_1 = bg - diff
+        bg_2 = bg_1 - diff
+    end
 end
 
 local set_hl = vim.api.nvim_set_hl
