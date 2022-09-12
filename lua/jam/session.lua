@@ -37,7 +37,10 @@ function Session:start()
         group = aug_name,
         buffer = 0,
         callback = function()
-            if self.ime_mode == "Complete" and not self:current_node():_skip() then
+            if
+                (self.ime_mode == "Complete" and not self:current_node():_skip())
+                or self.ime_mode == "Convert"
+            then
                 self:confirm()
                 self:_mode_set("PreInput")
             end
@@ -108,6 +111,9 @@ function Session:complete()
         local response = cgi.get_responce(request)
         self.completeNodes:new_response(response)
     else
+        if self.ime_mode == "Convert" then
+            self:cancel()
+        end
         local request = self.input_status.display
         local response = cgi.get_responce(request)
         self.completeNodes = CompleteNodes.new(request, response, self.start_pos, self)
@@ -204,8 +210,8 @@ function Session:shorten()
 end
 
 function Session:confirm()
-    self:_mode_validate({ "Input", "Complete" })
-    if self.ime_mode == "Complete" then
+    self:_mode_validate({ "Input", "Complete", "Convert" })
+    if self.ime_mode ~= "Input" then
         self.completeNodes:tail():move()
         pum.close()
     end

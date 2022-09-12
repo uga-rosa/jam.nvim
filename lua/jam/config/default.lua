@@ -10,8 +10,8 @@ return {
             "<Space>",
             {
                 Input = action.complete,
-                Convert = action.complete,
                 Complete = action.insert_next_item,
+                Convert = action.complete,
             },
         },
         { "<F6>", action.convert_hira, { "Input", "Complete", "Convert" } },
@@ -19,11 +19,12 @@ return {
         { "<F8>", action.convert_han_kata, { "Input", "Complete", "Convert" } },
         { "<F9>", action.convert_zen_eisuu, { "Input", "Complete", "Convert" } },
         { "<F10>", action.convert_han_eisuu, { "Input", "Complete", "Convert" } },
-        { { "<C-CR>", "<C-m>", "<CR>" }, action.confirm, { "Input", "Complete" } },
+        { { "<C-CR>", "<C-m>", "<CR>" }, action.confirm, { "Input", "Complete", "Convert" } },
         {
             { "<C-h>", "<BS>" },
             {
                 Input = action.backspace,
+                Complete = action.cancel,
                 Convert = action.cancel,
             },
         },
@@ -32,6 +33,7 @@ return {
             {
                 PreInput = action.exit,
                 Input = action.exit,
+                Complete = action.cancel,
                 Convert = action.cancel,
             },
         },
