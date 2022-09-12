@@ -17,6 +17,7 @@ local pum = require("jam.utils.pum")
 ---@field next CompleteNode
 ---@field parent CompleteNodes
 ---@field session Session
+---@field skip_count integer
 local CompleteNode = {}
 
 ---@param a string[]
@@ -53,6 +54,7 @@ function CompleteNode.new(origin, candidates, start_col, start_row)
         start = start_col,
         end_ = start_col + #candidates[1] - 1,
         row = start_row,
+        skip_count = 0,
     }
     return setmetatable(new, { __index = CompleteNode })
 end
@@ -76,6 +78,7 @@ function CompleteNode:insert_relative(delta)
     local selected = pum.selected_word()
     self.selected_candidate = selected
     self.end_ = self.start + #selected - 1
+    self.skip_count = assert(utf8.len(selected))
 
     local next = self.next
     while next:is_valid() do
@@ -84,6 +87,16 @@ function CompleteNode:insert_relative(delta)
         next = next.next
     end
     self.parent.end_ = self.parent:tail().end_
+end
+
+---Fired on InsertCharPre
+---@return boolean
+function CompleteNode:_skip()
+    if self.skip_count > 0 then
+        self.skip_count = self.skip_count - 1
+        return true
+    end
+    return false
 end
 
 function CompleteNode:move()

@@ -29,11 +29,16 @@ local Session = {}
 function Session:start()
     self:reset()
     self:_mode_set("PreInput")
+
     api.nvim_create_augroup(aug_name, { clear = true })
     api.nvim_create_autocmd("InsertCharPre", {
         group = aug_name,
         buffer = 0,
         callback = function()
+            if self.ime_mode == "Convert" and not self.completeNodes:current():_skip() then
+                self:confirm()
+                self:_mode_set("PreInput")
+            end
             self.input_status:input(vim.v.char)
         end,
     })
@@ -51,6 +56,7 @@ function Session:start()
             self:exit()
         end,
     })
+
     keymap:store()
     keymap:set()
 end
