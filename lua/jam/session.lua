@@ -80,6 +80,10 @@ function Session:backspace()
     self.input_status:backspace()
 end
 
+function Session:_complete()
+    self.completeNodes:current():complete()
+end
+
 function Session:complete()
     self:_mode_validate({ "Input", "Convert" })
     if self.ime_mode == "Input" then
@@ -96,7 +100,7 @@ function Session:complete()
         local response = cgi.get_responce(request)
         self.completeNodes:new_response(response)
     end
-    self.completeNodes:current():complete()
+    self:_complete()
     self:_mode_set("Convert")
 end
 
@@ -119,28 +123,28 @@ end
 function Session:goto_next()
     self:_mode_validate("Convert")
     if self.completeNodes:goto_next() then
-        self.completeNodes:current():complete()
+        self:_complete()
     end
 end
 
 function Session:goto_prev()
     self:_mode_validate("Convert")
     if self.completeNodes:goto_prev() then
-        self.completeNodes:current():complete()
+        self:_complete()
     end
 end
 
 function Session:goto_head()
     self:_mode_validate("Convert")
     if self.completeNodes:goto_head() then
-        self.completeNodes:current():complete()
+        self:_complete()
     end
 end
 
 function Session:goto_tail()
     self:_mode_validate("Convert")
     if self.completeNodes:goto_tail() then
-        self.completeNodes:current():complete()
+        self:_complete()
     end
 end
 

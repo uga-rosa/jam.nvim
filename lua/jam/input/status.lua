@@ -4,6 +4,7 @@ local GoogleInput = require("jam.input.google_input")
 local utils = require("jam.utils")
 
 ---@class InputStatus
+---@field raw string
 ---@field output string
 ---@field display string
 ---@field google_input GoogleInput
@@ -16,6 +17,7 @@ local InputStatus = {}
 ---@return InputStatus
 function InputStatus.new(session)
     return setmetatable({
+        raw = "",
         output = "",
         display = "",
         google_input = GoogleInput.new(),
@@ -26,7 +28,7 @@ end
 function InputStatus:set_pos()
     local pos = utils.get_pos()
     self.start_pos = pos
-    self.end_col = pos[2]
+    self.end_col = pos[2] - 1
     self.session.start_pos = pos
 end
 
@@ -42,6 +44,7 @@ function InputStatus:input(char)
     elseif self.session.ime_mode ~= "Input" then
         return
     end
+    self.raw = self.raw .. char
     self.end_col = self.end_col + 1
     local result = self.google_input:input(char)
     if result.fixed then
@@ -63,7 +66,9 @@ function InputStatus:update_buffer()
         return
     end
     local current_line = api.nvim_get_current_line()
+    dump(current_line, self.display, self.start_pos[2], self.end_col)
     current_line = utils.insert(current_line, self.display, self.start_pos[2], self.end_col)
+    print(current_line)
     api.nvim_set_current_line(current_line)
     self.end_col = self.start_pos[2] + #self.display - 1
     api.nvim_win_set_cursor(0, { self.start_pos[1], self.end_col })
