@@ -35,7 +35,7 @@ end
 ---@param char string
 function InputStatus:input(char)
     if self.session.ime_mode == "PreInput" then
-        if char:find("%s") then
+        if char:find("%s") or char == "　" then
             return
         else
             self:set_pos()

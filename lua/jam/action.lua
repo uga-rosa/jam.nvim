@@ -1,4 +1,5 @@
 local session = require("jam.session")
+local utils = require("jam.utils")
 
 local action = {}
 
@@ -76,6 +77,11 @@ end
 
 function action.exit()
     session:exit()
+end
+
+function action.zenkaku_space()
+    session:_mode_validate("PreInput")
+    utils.feedkey("　")
 end
 
 return action

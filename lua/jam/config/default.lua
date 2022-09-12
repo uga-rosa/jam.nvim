@@ -45,6 +45,7 @@ return {
         { { "<C-a>", "<C-Left>", "<Home>" }, action.goto_head, "Complete" },
         { { "<C-k>", "<S-Right>" }, action.extend, "Complete" },
         { { "<C-j>", "<S-Left>" }, action.shorten, "Complete" },
+        { "<C-Space>", action.zenkaku_space, "PreInput" },
     },
     _action = action,
 }
