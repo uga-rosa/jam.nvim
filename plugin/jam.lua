@@ -1,7 +1,7 @@
-if vim.g.loaded_japanese_ime then
+if vim.g.loaded_jam then
     return
 end
-vim.g.loaded_japanese_ime = true
+vim.g.loaded_jam = true
 
 require("jam").setup()
 
