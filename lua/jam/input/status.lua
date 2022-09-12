@@ -66,9 +66,7 @@ function InputStatus:update_buffer()
         return
     end
     local current_line = api.nvim_get_current_line()
-    dump(current_line, self.display, self.start_pos[2], self.end_col)
     current_line = utils.insert(current_line, self.display, self.start_pos[2], self.end_col)
-    print(current_line)
     api.nvim_set_current_line(current_line)
     self.end_col = self.start_pos[2] + #self.display - 1
     api.nvim_win_set_cursor(0, { self.start_pos[1], self.end_col })
