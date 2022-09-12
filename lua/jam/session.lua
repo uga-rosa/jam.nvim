@@ -3,6 +3,7 @@ local api = vim.api
 local CompleteNodes = require("jam.node.complete_nodes")
 local InputStatus = require("jam.input.status")
 local keymap = require("jam.keymap")
+local Convert = require("jam.convert")
 local cgi = require("jam.cgi")
 local pum = require("jam.utils.pum")
 local utils = require("jam.utils")
@@ -14,6 +15,7 @@ local aug_name = "jam"
 --- | '""'
 --- | '"PreInput"'
 --- | '"Input"'
+--- | '"Complete"'
 --- | '"Convert"'
 
 ---@type ime_mode
@@ -35,7 +37,7 @@ function Session:start()
         group = aug_name,
         buffer = 0,
         callback = function()
-            if self.ime_mode == "Convert" and not self:current_node():_skip() then
+            if self.ime_mode == "Complete" and not self:current_node():_skip() then
                 self:confirm()
                 self:_mode_set("PreInput")
             end
@@ -96,13 +98,8 @@ function Session:_complete()
 end
 
 function Session:complete()
-    self:_mode_validate({ "Input", "Convert" })
-    if self.ime_mode == "Input" then
-        ---@type string
-        local request = self.input_status.display
-        local response = cgi.get_responce(request)
-        self.completeNodes = CompleteNodes.new(request, response, self.start_pos, self)
-    else
+    self:_mode_validate({ "Input", "Complete", "Convert" })
+    if self.ime_mode == "Complete" then
         local request = sa.new(self.completeNodes.nodes)
             :map(function(node)
                 return node.origin
@@ -110,13 +107,50 @@ function Session:complete()
             :concat(",")
         local response = cgi.get_responce(request)
         self.completeNodes:new_response(response)
+    else
+        local request = self.input_status.display
+        local response = cgi.get_responce(request)
+        self.completeNodes = CompleteNodes.new(request, response, self.start_pos, self)
     end
     self:_complete()
+    self:_mode_set("Complete")
+end
+
+---@param get_responce fun(raw: string, hiragana: string): response
+function Session:_convert(get_responce)
+    self:_mode_validate({ "Input", "Complete", "Convert" })
+    if self.ime_mode ~= "Input" then
+        self:cancel()
+    end
+    local request = self.input_status.display
+    local response = get_responce(self.input_status.raw, request)
+    self.completeNodes = CompleteNodes.new(request, response, self.start_pos, self)
+    self:current_node():move()
     self:_mode_set("Convert")
 end
 
+function Session:convert_hira()
+    self:_convert(Convert.hira)
+end
+
+function Session:convert_zen_kata()
+    self:_convert(Convert.zen_kata)
+end
+
+function Session:convert_zen_eisuu()
+    self:_convert(Convert.zen_eisuu)
+end
+
+function Session:convert_han_kata()
+    self:_convert(Convert.han_kata)
+end
+
+function Session:convert_han_eisuu()
+    self:_convert(Convert.han_eisuu)
+end
+
 function Session:cancel()
-    self:_mode_validate("Convert")
+    self:_mode_validate({ "Complete", "Convert" })
     self.completeNodes:tail():move()
     pum.close()
     self.input_status.end_col = self.completeNodes.end_
@@ -127,51 +161,51 @@ end
 
 ---@param delta integer
 function Session:insert_item(delta)
-    self:_mode_validate("Convert")
+    self:_mode_validate("Complete")
     self:current_node():insert_relative(delta)
 end
 
 function Session:goto_next()
-    self:_mode_validate("Convert")
+    self:_mode_validate("Complete")
     if self.completeNodes:goto_next() then
         self:_complete()
     end
 end
 
 function Session:goto_prev()
-    self:_mode_validate("Convert")
+    self:_mode_validate("Complete")
     if self.completeNodes:goto_prev() then
         self:_complete()
     end
 end
 
 function Session:goto_head()
-    self:_mode_validate("Convert")
+    self:_mode_validate("Complete")
     if self.completeNodes:goto_head() then
         self:_complete()
     end
 end
 
 function Session:goto_tail()
-    self:_mode_validate("Convert")
+    self:_mode_validate("Complete")
     if self.completeNodes:goto_tail() then
         self:_complete()
     end
 end
 
 function Session:extend()
-    self:_mode_validate("Convert")
+    self:_mode_validate("Complete")
     self:current_node():extend()
 end
 
 function Session:shorten()
-    self:_mode_validate("Convert")
+    self:_mode_validate("Complete")
     self:current_node():shorten()
 end
 
 function Session:confirm()
-    self:_mode_validate({ "Input", "Convert" })
-    if self.ime_mode == "Convert" then
+    self:_mode_validate({ "Input", "Complete" })
+    if self.ime_mode == "Complete" then
         self.completeNodes:tail():move()
         pum.close()
     end
@@ -180,7 +214,7 @@ function Session:confirm()
 end
 
 function Session:exit()
-    if self.ime_mode == "Input" or self.ime_mode == "Convert" then
+    if self.ime_mode == "Input" or self.ime_mode == "Complete" then
         self:confirm()
     end
     self:_mode_set("")

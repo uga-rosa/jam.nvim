@@ -14,6 +14,26 @@ function action.complete()
     session:complete()
 end
 
+function action.convert_hira()
+    session:convert_hira()
+end
+
+function action.convert_zen_kata()
+    session:convert_zen_kata()
+end
+
+function action.convert_zen_eisuu()
+    session:convert_zen_eisuu()
+end
+
+function action.convert_han_kata()
+    session:convert_han_kata()
+end
+
+function action.convert_han_eisuu()
+    session:convert_han_eisuu()
+end
+
 function action.cancel()
     session:cancel()
 end
