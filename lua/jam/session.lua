@@ -35,7 +35,7 @@ function Session:start()
         group = aug_name,
         buffer = 0,
         callback = function()
-            if self.ime_mode == "Convert" and not self.completeNodes:current():_skip() then
+            if self.ime_mode == "Convert" and not self:current_node():_skip() then
                 self:confirm()
                 self:_mode_set("PreInput")
             end
@@ -86,8 +86,13 @@ function Session:backspace()
     self.input_status:backspace()
 end
 
+---@return CompleteNode
+function Session:current_node()
+    return self.completeNodes:current()
+end
+
 function Session:_complete()
-    self.completeNodes:current():complete()
+    self:current_node():complete()
 end
 
 function Session:complete()
@@ -123,7 +128,7 @@ end
 ---@param delta integer
 function Session:insert_item(delta)
     self:_mode_validate("Convert")
-    self.completeNodes:current():insert_relative(delta)
+    self:current_node():insert_relative(delta)
 end
 
 function Session:goto_next()
@@ -156,12 +161,12 @@ end
 
 function Session:extend()
     self:_mode_validate("Convert")
-    self.completeNodes:current():extend()
+    self:current_node():extend()
 end
 
 function Session:shorten()
     self:_mode_validate("Convert")
-    self.completeNodes:current():shorten()
+    self:current_node():shorten()
 end
 
 function Session:confirm()
