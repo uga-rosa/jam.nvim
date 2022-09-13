@@ -1,19 +1,23 @@
 local api = vim.api
 
 local CompleteNode = require("jam.node.complete_node")
+local Nodes = require("jam.node.nodes")
 local utils = require("jam.utils")
 local sa = require("jam.utils.safe_array")
 
----@class CompleteNodes
----@field origin string
+---@class CompleteNodes: Nodes
 ---@field nodes CompleteNode[]
 ---@field selected_node CompleteNode
----@field session Session
----@field start integer
----@field end_ integer
 ---@field _dummy_head CompleteNode
 ---@field _dummy_tail CompleteNode
-local CompleteNodes = {}
+---@field origin string
+---@field start integer
+---@field end_ integer
+---@field session Session
+---@field current fun(): CompleteNode
+---@field head fun(): CompleteNode
+---@field tail fun(): CompleteNode
+local CompleteNodes = setmetatable({}, { __index = Nodes })
 
 ---@param origin string
 ---@param res response
@@ -64,15 +68,6 @@ function CompleteNodes.new(origin, res, start_pos, session)
     return result
 end
 
-function CompleteNodes:fix_nodes()
-    self.nodes = {}
-    local node = self:head()
-    while node:is_valid() do
-        table.insert(self.nodes, node)
-        node = node.next
-    end
-end
-
 function CompleteNodes:update_buffer()
     local text = sa.new(self.nodes)
         :map(function(node)
@@ -84,66 +79,6 @@ function CompleteNodes:update_buffer()
     api.nvim_set_current_line(new_line)
     self.start = self:head().start
     self.end_ = self:tail().end_
-end
-
----@return CompleteNode
-function CompleteNodes:head()
-    return self._dummy_head.next
-end
-
----@return CompleteNode
-function CompleteNodes:tail()
-    return self._dummy_tail.prev
-end
-
-function CompleteNodes:is_head()
-    return self:current() == self:head()
-end
-
-function CompleteNodes:is_tail()
-    return self:current() == self:tail()
-end
-
----@return CompleteNode
-function CompleteNodes:current()
-    return self.selected_node
-end
-
----Return whether the move was successful or not.
----@return boolean
-function CompleteNodes:goto_next()
-    if self.selected_node.next:is_valid() then
-        self.selected_node = self.selected_node.next
-        return true
-    end
-    return false
-end
-
----@return boolean
-function CompleteNodes:goto_prev()
-    if self.selected_node.prev:is_valid() then
-        self.selected_node = self.selected_node.prev
-        return true
-    end
-    return false
-end
-
----@return boolean
-function CompleteNodes:goto_head()
-    if not self:is_head() then
-        self.selected_node = self:head()
-        return true
-    end
-    return false
-end
-
----@return boolean
-function CompleteNodes:goto_tail()
-    if not self:is_tail() then
-        self.selected_node = self:tail()
-        return true
-    end
-    return false
 end
 
 ---@param response response

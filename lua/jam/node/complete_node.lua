@@ -1,24 +1,20 @@
-local api = vim.api
-
+local Node = require("jam.node.node")
 local utf8 = require("jam.utils.utf8")
 local utils = require("jam.utils")
 local pum = require("jam.utils.pum")
 
 ---@alias complete_items {word: string}[]
 
----@class CompleteNode
----@field origin string
----@field candidates complete_items
----@field selected_candidate string
----@field start integer #byte index of col
----@field end_ integer #byte index of col
----@field row integer #lnum
+---@class CompleteNode: Node
 ---@field prev CompleteNode
 ---@field next CompleteNode
 ---@field parent CompleteNodes
+---@field origin string
+---@field candidates complete_items
+---@field selected_candidate string
 ---@field session Session
 ---@field skip_count integer
-local CompleteNode = {}
+local CompleteNode = setmetatable({}, { __index = Node })
 
 ---@param a string[]
 ---@return complete_items
@@ -37,7 +33,7 @@ end
 function CompleteNode.new(origin, candidates, start_col, start_row)
     if origin == nil then
         -- dummy node
-        return setmetatable({}, { __index = CompleteNode })
+        return setmetatable({ is_dummy = true }, { __index = CompleteNode })
     end
 
     vim.validate({
@@ -57,21 +53,6 @@ function CompleteNode.new(origin, candidates, start_col, start_row)
         skip_count = 0,
     }
     return setmetatable(new, { __index = CompleteNode })
-end
-
----@return boolean
-function CompleteNode:is_dummy()
-    return self.origin == nil
-end
-
----@return boolean
-function CompleteNode:is_valid()
-    return not self:is_dummy()
-end
-
----@return boolean
-function CompleteNode:is_selected()
-    return self == self.parent:current()
 end
 
 function CompleteNode:complete()
@@ -104,10 +85,6 @@ function CompleteNode:_skip()
         return true
     end
     return false
-end
-
-function CompleteNode:move()
-    api.nvim_win_set_cursor(0, { self.row, self.end_ })
 end
 
 function CompleteNode:extend()
