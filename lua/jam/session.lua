@@ -231,6 +231,7 @@ function Session:_convert(get_responce, need_raw)
         local response = self.complete_nodes._response
         response[self:current_c():get_idx()] = get_responce(hiragana, raw_str)[1]
         self.complete_nodes:new_response(response)
+        pum.close()
     else
         if self.ime_mode == "Convert" then
             self:cancel()
@@ -239,8 +240,8 @@ function Session:_convert(get_responce, need_raw)
         local raw_str = need_raw and self.input_nodes:raw_str() or nil
         local response = get_responce(hiragana, raw_str)
         self.complete_nodes = CompleteNodes.new(hiragana, response, self.start_pos, self)
-        self:_mode_set("Convert")
     end
+    self:_mode_set("Convert")
     self:current_c():move()
     self:_update_highlight()
 end
@@ -282,7 +283,7 @@ function Session:insert_item(delta)
 end
 
 function Session:goto_prev()
-    self:_mode_validate({ "Input", "Complete" })
+    self:_mode_validate({ "Input", "Complete", "Convert" })
     if self.ime_mode == "Input" then
         self.input_nodes:goto_prev()
     elseif self.complete_nodes:goto_prev() then
@@ -291,7 +292,7 @@ function Session:goto_prev()
 end
 
 function Session:goto_next()
-    self:_mode_validate({ "Input", "Complete" })
+    self:_mode_validate({ "Input", "Complete", "Convert" })
     if self.ime_mode == "Input" then
         self.input_nodes:goto_next()
     elseif self.complete_nodes:goto_next() then
@@ -300,7 +301,7 @@ function Session:goto_next()
 end
 
 function Session:goto_head()
-    self:_mode_validate({ "Input", "Complete" })
+    self:_mode_validate({ "Input", "Complete", "Convert" })
     if self.ime_mode == "Input" then
         self.input_nodes:goto_head()
     elseif self.complete_nodes:goto_head() then
@@ -309,7 +310,7 @@ function Session:goto_head()
 end
 
 function Session:goto_tail()
-    self:_mode_validate({ "Input", "Complete" })
+    self:_mode_validate({ "Input", "Complete", "Convert" })
     if self.ime_mode == "Input" then
         self.input_nodes:goto_tail()
     elseif self.complete_nodes:goto_tail() then

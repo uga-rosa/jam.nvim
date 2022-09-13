@@ -44,7 +44,7 @@ end
 ---@param hiragana string
 ---@param raw string
 ---@return response
-function Convert.han_eisuu(raw, hiragana)
+function Convert.han_eisuu(hiragana, raw)
     return { { origin = hiragana, candidates = { raw } } }
 end
 
