@@ -216,12 +216,12 @@ function Session:_search_raw()
         display = display .. i_nodes[i].display
         i = i + 1
     end
-    if #raw_str == display_len then
+    if #display == display_len then
         return raw_str
     end
 end
 
----@param get_responce fun(hiragana: string, raw_str: string): response
+---@param get_responce fun(hiragana: string, raw_str?: string): response
 ---@param need_raw? boolean
 function Session:_convert(get_responce, need_raw)
     self:_mode_validate({ "Input", "Complete", "Convert" })
@@ -229,9 +229,7 @@ function Session:_convert(get_responce, need_raw)
         local hiragana = self:current_c().origin
         local raw_str = need_raw and (self:_search_raw() or hiragana) or nil
         local response = self.complete_nodes._response
-        dump(response)
         response[self:current_c():get_idx()] = get_responce(hiragana, raw_str)[1]
-        dump(response)
         self.complete_nodes:new_response(response)
     else
         if self.ime_mode == "Convert" then

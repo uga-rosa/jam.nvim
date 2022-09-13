@@ -97,9 +97,7 @@ function CompleteNode:extend()
         self.origin = self.origin .. next_char
         self.end_ = self.end_ + #next_char
 
-        dump(self.next.origin, next_char)
         self.next.origin = self.next.origin:sub(#next_char + 1)
-        dump(self.next.origin)
         if self.next.origin == "" then
             self.next:delete()
         else
