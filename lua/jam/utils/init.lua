@@ -2,6 +2,7 @@ local api = vim.api
 local uv = vim.loop
 
 local utf8 = require("jam.utils.utf8")
+local sa = require("jam.utils.safe_array")
 
 local utils = {}
 
@@ -24,12 +25,27 @@ end
 
 ---@param v any
 ---@param msg string
----@param ... string | number
+---@param ... any
 function utils.assertf(v, msg, ...)
     if select("#", ...) > 0 then
-        msg = string.format(msg, ...)
+        local args = sa.new({ ... })
+            :map(function(x)
+                return vim.inspect(x)
+            end)
+            :unpack()
+        msg = string.format(msg, unpack(args))
     end
     assert(v, msg)
+end
+
+---@param array any[]
+---@param idx integer
+function utils.range_validate(array, idx)
+    vim.validate({
+        array = { array, "t" },
+        idx = { idx, "n" },
+    })
+    utils.assertf(1 <= idx and idx <= #array, "Out of range. array: %s, idx: %s", array, idx)
 end
 
 ---@param path string
@@ -91,7 +107,7 @@ function utils.get_char(s, n)
     if not start then
         error(("start is out of bounds. s: %s, n: %s"):format(s, n))
     end
-    if n == 1 or n == -1 then
+    if n == -1 or (n == 1 and utf8.len(s) == 1) then
         return s:sub(start)
     end
     local end_ = utf8.offset(s, n + 1)
@@ -113,6 +129,17 @@ function utils.cast2tbl(a)
         return a
     end
     return { a }
+end
+
+local whitespaces = {
+    [" "] = true,
+    ["　"] = true,
+}
+
+---@param s string
+---@return boolean
+function utils.is_whitespace(s)
+    return whitespaces[s] or false
 end
 
 return utils

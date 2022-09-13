@@ -26,11 +26,13 @@ end
 
 ---@param origin string
 ---@param candidates string[]
----@param start_col integer
----@param start_row integer
+---@param col integer
+---@param row integer
+---@param parent CompleteNodes
+---@param session Session
 ---@return CompleteNode
 ---@overload fun(): CompleteNode
-function CompleteNode.new(origin, candidates, start_col, start_row)
+function CompleteNode.new(origin, candidates, col, row, parent, session)
     if origin == nil then
         -- dummy node
         return setmetatable({ is_dummy = true }, { __index = CompleteNode })
@@ -39,17 +41,19 @@ function CompleteNode.new(origin, candidates, start_col, start_row)
     vim.validate({
         origin = { origin, "s" },
         candidates = { candidates, "t" },
-        start_col = { start_col, "n" },
-        start_row = { start_row, "n" },
+        col = { col, "n" },
+        row = { row, "n" },
     })
 
     local new = {
         origin = origin,
         candidates = array2complete_items(candidates),
         selected_candidate = candidates[1],
-        start = start_col,
-        end_ = start_col + #candidates[1] - 1,
-        row = start_row,
+        start = col,
+        end_ = col + #candidates[1] - 1,
+        row = row,
+        parent = parent,
+        session = session,
         skip_count = 0,
     }
     return setmetatable(new, { __index = CompleteNode })
@@ -93,11 +97,11 @@ function CompleteNode:extend()
         self.origin = self.origin .. next_char
         self.end_ = self.end_ + #next_char
 
+        dump(self.next.origin, next_char)
         self.next.origin = self.next.origin:sub(#next_char + 1)
+        dump(self.next.origin)
         if self.next.origin == "" then
-            self.next.next.prev = self
-            self.next = self.next.next
-            self.parent:fix_nodes()
+            self.next:delete()
         else
             self.next.start = self.next.start + #next_char
         end
@@ -116,14 +120,15 @@ function CompleteNode:shorten()
             self.next.origin = last_char .. self.next.origin
             self.next.start = self.next.start - #last_char
         else
-            local new = CompleteNode.new(last_char, { last_char }, self.end_ + 1, self.row)
-            new.parent = self.parent
-            new.session = self.session
-            self.next.prev = new
-            new.next = self.next
-            self.next = new
-            new.prev = self
-            self.parent:fix_nodes()
+            local next_node = CompleteNode.new(
+                last_char,
+                { last_char },
+                self.end_ + 1,
+                self.row,
+                self.parent,
+                self.session
+            )
+            self:insert_next(next_node)
         end
 
         self.session:complete()

@@ -1,3 +1,5 @@
+local utils = require("jam.utils")
+
 ---@class Nodes
 ---@field nodes Node[]
 ---@field selected_node Node
@@ -36,6 +38,19 @@ function Nodes:fix_nodes()
     while node:is_valid() do
         table.insert(self.nodes, node)
         node = node.next
+    end
+end
+
+---@param idx integer
+---@return Node
+function Nodes:get_by_idx(idx)
+    if idx == 0 then
+        return self._dummy_head
+    elseif idx == #self.nodes + 1 then
+        return self._dummy_tail
+    else
+        utils.range_validate(self.nodes, idx)
+        return self.nodes[idx]
     end
 end
 

@@ -14,6 +14,7 @@ local sa = require("jam.utils.safe_array")
 ---@field start integer
 ---@field end_ integer
 ---@field session Session
+---@field _response response
 ---@field current fun(): CompleteNode
 ---@field head fun(): CompleteNode
 ---@field tail fun(): CompleteNode
@@ -25,7 +26,7 @@ local CompleteNodes = setmetatable({}, { __index = Nodes })
 ---@return CompleteNodes
 function CompleteNodes.new(origin, res, start_pos, session)
     vim.validate({
-        req = { res, "t" },
+        res = { res, "t" },
         start_pos = { start_pos, "t" },
         start_row = { start_pos[1], "n" },
         start_col = { start_pos[2], "n" },
@@ -36,9 +37,10 @@ function CompleteNodes.new(origin, res, start_pos, session)
     local result = setmetatable({
         origin = origin,
         nodes = {},
-        session = session,
         start = start_col,
         end_ = start_col + #origin - 1,
+        _response = res,
+        session = session,
     }, { __index = CompleteNodes })
 
     local dummy_head = CompleteNode.new()
@@ -49,9 +51,7 @@ function CompleteNodes.new(origin, res, start_pos, session)
     local prev = dummy_head
     local node
     for _, v in ipairs(res) do
-        node = CompleteNode.new(v.origin, v.candidates, start_col, start_pos[1])
-        node.parent = result
-        node.session = session
+        node = CompleteNode.new(v.origin, v.candidates, start_col, start_pos[1], result, session)
         node.prev = prev
         prev.next = node
         start_col = node.end_ + 1

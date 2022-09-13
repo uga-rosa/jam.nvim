@@ -4,19 +4,15 @@ local data_table = require("jam.convert.table")
 ---@class Convert
 local Convert = {}
 
----@param raw string
 ---@param hiragana string
 ---@return response
----@diagnostic disable-next-line: unused-local
-function Convert.hira(raw, hiragana)
+function Convert.hira(hiragana)
     return { { origin = hiragana, candidates = { hiragana } } }
 end
 
----@param raw string
 ---@param hiragana string
 ---@return response
----@diagnostic disable-next-line: unused-local
-function Convert.zen_kata(raw, hiragana)
+function Convert.zen_kata(hiragana)
     local result = {}
     for _, c in utf8.codes(hiragana) do
         table.insert(result, data_table.zen_kata[c] or c)
@@ -24,10 +20,10 @@ function Convert.zen_kata(raw, hiragana)
     return { { origin = hiragana, candidates = { table.concat(result) } } }
 end
 
----@param raw string
 ---@param hiragana string
+---@param raw string
 ---@return response
-function Convert.zen_eisuu(raw, hiragana)
+function Convert.zen_eisuu(hiragana, raw)
     local result = {}
     for _, c in utf8.codes(raw) do
         table.insert(result, data_table.zen_eisuu[c] or c)
@@ -35,11 +31,9 @@ function Convert.zen_eisuu(raw, hiragana)
     return { { origin = hiragana, candidates = { table.concat(result) } } }
 end
 
----@param raw string
 ---@param hiragana string
 ---@return response
----@diagnostic disable-next-line: unused-local
-function Convert.han_kata(raw, hiragana)
+function Convert.han_kata(hiragana)
     local result = {}
     for _, c in utf8.codes(hiragana) do
         table.insert(result, data_table.han_kata[c] or c)
@@ -47,8 +41,8 @@ function Convert.han_kata(raw, hiragana)
     return { { origin = hiragana, candidates = { table.concat(result) } } }
 end
 
----@param raw string
 ---@param hiragana string
+---@param raw string
 ---@return response
 function Convert.han_eisuu(raw, hiragana)
     return { { origin = hiragana, candidates = { raw } } }

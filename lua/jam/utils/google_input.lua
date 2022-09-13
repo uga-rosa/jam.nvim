@@ -21,27 +21,23 @@ function FilterRule.new(input, output, next_input)
     }, { __index = FilterRule })
 end
 
+---@alias input_status "finished" | "mistyped" | "continued"
+
 ---@class FilterResult
 ---@field input string
----@field next_input string
----@field tmp_fixed FilterRule
 ---@field fixed FilterRule
----@field next_candidates FilterRule[]
+---@field status input_status
 local FilterResult = {}
 
 ---@param input string
----@param next_input string
----@param tmp_fixed? FilterRule
 ---@param fixed? FilterRule
----@param next_candidates FilterRule[]
+---@param status input_status
 ---@return FilterResult
-function FilterResult.new(input, next_input, tmp_fixed, fixed, next_candidates)
+function FilterResult.new(input, fixed, status)
     return setmetatable({
         input = input,
-        next_input = next_input,
-        tmp_fixed = tmp_fixed,
         fixed = fixed,
-        next_candidates = next_candidates,
+        status = status,
     }, { __index = FilterResult })
 end
 
@@ -52,15 +48,20 @@ end
 ---@field next_candidates FilterRule[]
 local GoogleInput = {}
 
+---@param input_buffer? string
 ---@return GoogleInput
-function GoogleInput.new()
-    local new = setmetatable({
-        input_buffer = "",
-        tmp_fixed = nil,
-        next_candidates = {},
-    }, { __index = GoogleInput })
+function GoogleInput.new(input_buffer)
+    local new = setmetatable({}, { __index = GoogleInput })
+    new:reset()
+    new.input_buffer = input_buffer or ""
     new:LoadFilterRules()
     return new
+end
+
+function GoogleInput:reset()
+    self.input_buffer = ""
+    self.tmp_fixed = nil
+    self.next_candidates = {}
 end
 
 function GoogleInput:LoadFilterRules()
@@ -121,6 +122,7 @@ local function get_by_startswith(rules, input)
 end
 
 ---@param char string
+---@return FilterResult
 function GoogleInput:input(char)
     vim.validate({
         char = { char, "s" },
@@ -132,7 +134,8 @@ function GoogleInput:input(char)
         candidates = self.rules
     end
 
-    local input = self.input_buffer .. char
+    local pre_input = self.input_buffer
+    local input = pre_input .. char
     local tmp_fixed, next_candidates = get_by_startswith(candidates, input)
     tmp_fixed = tmp_fixed or self.tmp_fixed
 
@@ -149,18 +152,18 @@ function GoogleInput:input(char)
                 self.input_buffer = tmp_fixed.next_input .. char
             end
             self.tmp_fixed = nil
-            return FilterResult.new(input, self.input_buffer, nil, tmp_fixed, next_candidates)
+            return FilterResult.new(input, tmp_fixed, "finished")
         else
-            -- There is no fixed rule in the input so far (mistyping).
+            -- There is no fixed rule in the input so far (mistyped).
             self.input_buffer = ""
             self.tmp_fixed = nil
-            return FilterResult.new(input, "", nil, nil, next_candidates)
+            return FilterResult.new(pre_input, nil, "mistyped")
         end
     else
         -- There are candidate rules that match the following input.
         self.input_buffer = input
         self.tmp_fixed = tmp_fixed
-        return FilterResult.new(input, "", tmp_fixed, nil, next_candidates)
+        return FilterResult.new(input, nil, "continued")
     end
 end
 
