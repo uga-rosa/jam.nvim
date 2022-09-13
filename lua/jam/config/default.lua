@@ -1,4 +1,4 @@
-local action = require("jam.action")
+local mapping = require("jam").mapping
 
 return {
     -- "default" and "azik" is available.
@@ -6,46 +6,59 @@ return {
     keyLayout = "default",
     start_key = "<C-q>",
     mappings = {
-        {
-            "<Space>",
-            {
-                Input = action.complete,
-                Complete = action.insert_next_item,
-                Convert = action.complete,
-            },
+        ["<Space>"] = {
+            Input = mapping.complete,
+            Complete = mapping.insert_next_item,
+            Convert = mapping.complete,
         },
-        { "<F6>", action.convert_hira, { "Input", "Complete", "Convert" } },
-        { "<F7>", action.convert_zen_kata, { "Input", "Complete", "Convert" } },
-        { "<F8>", action.convert_han_kata, { "Input", "Complete", "Convert" } },
-        { "<F9>", action.convert_zen_eisuu, { "Input", "Complete", "Convert" } },
-        { "<F10>", action.convert_han_eisuu, { "Input", "Complete", "Convert" } },
-        { { "<C-CR>", "<C-m>", "<CR>" }, action.confirm, { "Input", "Complete", "Convert" } },
-        {
-            { "<C-h>", "<BS>" },
-            {
-                Input = action.backspace,
-                Complete = action.cancel,
-                Convert = action.cancel,
-            },
+        ["<F6>"] = mapping(mapping.convert_hira, { "Input", "Complete", "Convert" }),
+        ["<F7>"] = mapping(mapping.convert_zen_kata, { "Input", "Complete", "Convert" }),
+        ["<F8>"] = mapping(mapping.convert_han_kata, { "Input", "Complete", "Convert" }),
+        ["<F9>"] = mapping(mapping.convert_zen_eisuu, { "Input", "Complete", "Convert" }),
+        ["<F10>"] = mapping(mapping.convert_han_eisuu, { "Input", "Complete", "Convert" }),
+        ["<CR>"] = mapping(mapping.confirm, { "Input", "Complete", "Convert" }),
+        ["<C-m>"] = mapping(mapping.confirm, { "Input", "Complete", "Convert" }),
+        ["<C-CR>"] = mapping(mapping.confirm, { "Input", "Complete", "Convert" }),
+        ["<BS>"] = {
+            Input = mapping.backspace,
+            Complete = mapping.cancel,
+            Convert = mapping.cancel,
         },
-        {
-            "<Esc>",
-            {
-                PreInput = action.exit,
-                Input = action.exit,
-                Complete = action.cancel,
-                Convert = action.cancel,
-            },
+        ["<C-h>"] = {
+            Input = mapping.backspace,
+            Complete = mapping.cancel,
+            Convert = mapping.cancel,
         },
-        { { "<C-n>", "<Tab>" }, action.insert_next_item, "Complete" },
-        { { "<C-p>", "<S-Tab>" }, action.insert_prev_item, "Complete" },
-        { { "<C-b>", "<Left>" }, action.goto_prev, { "Input", "Complete" } },
-        { { "<C-f>", "<Right>" }, action.goto_next, { "Input", "Complete" } },
-        { { "<C-a>", "<C-Left>", "<Home>" }, action.goto_head, { "Input", "Complete" } },
-        { { "<C-e>", "<C-Right>", "<End>" }, action.goto_tail, { "Input", "Complete" } },
-        { { "<C-k>", "<S-Right>" }, action.extend, "Complete" },
-        { { "<C-j>", "<S-Left>" }, action.shorten, "Complete" },
-        { "<C-Space>", action.zenkaku_space, "PreInput" },
+        ["<Esc>"] = {
+            PreInput = mapping.exit,
+            Input = mapping.exit,
+            Complete = mapping.cancel,
+            Convert = mapping.cancel,
+        },
+        ["<C-n>"] = {
+            Input = mapping.complete,
+            Complete = mapping.insert_next_item,
+        },
+        ["<Tab>"] = {
+            Input = mapping.complete,
+            Complete = mapping.insert_next_item,
+        },
+        ["<C-p>"] = mapping(mapping.insert_prev_item, "Complete"),
+        ["<S-Tab>"] = mapping(mapping.insert_prev_item, "Complete"),
+        ["<C-b>"] = mapping(mapping.goto_prev, { "Input", "Complete" }),
+        ["<Left>"] = mapping(mapping.goto_prev, { "Input", "Complete" }),
+        ["<C-f>"] = mapping(mapping.goto_next, { "Input", "Complete" }),
+        ["<Right>"] = mapping(mapping.goto_next, { "Input", "Complete" }),
+        ["<C-a>"] = mapping(mapping.goto_head, { "Input", "Complete" }),
+        ["<C-Left>"] = mapping(mapping.goto_head, { "Input", "Complete" }),
+        ["<Home>"] = mapping(mapping.goto_head, { "Input", "Complete" }),
+        ["<C-e>"] = mapping(mapping.goto_tail, { "Input", "Complete" }),
+        ["<C-Right>"] = mapping(mapping.goto_tail, { "Input", "Complete" }),
+        ["<End>"] = mapping(mapping.goto_tail, { "Input", "Complete" }),
+        ["<C-j>"] = mapping(mapping.shorten, "Complete"),
+        ["<S-Left>"] = mapping(mapping.shorten, "Complete"),
+        ["<C-k>"] = mapping(mapping.extend, "Complete"),
+        ["<S-Right>"] = mapping(mapping.extend, "Complete"),
+        ["<C-Space>"] = mapping(mapping.zenkaku_space, "PreInput"),
     },
-    _action = action,
 }

@@ -2,7 +2,6 @@ local api = vim.api
 
 local config = require("jam.config")
 local utils = require("jam.utils")
-local sa = require("jam.utils.safe_array")
 
 local Keymap = {
     buffer_mappings = {},
@@ -37,68 +36,41 @@ function Keymap:restore()
     self.buffer_mappings = {}
 end
 
----@param lhs string | string[]
----@param rhs function | table<string, function>
----@param modes? string | string[]
-local function set(lhs, rhs, modes)
-    lhs = utils.cast2tbl(lhs)
+---@param lhs string
+---@param rhs table<string, function>
+local function set(lhs, rhs)
     vim.validate({
-        lhs = { lhs, "t" },
+        lhs = { lhs, "s" },
+        rhs = { rhs, "t" },
     })
-    if modes ~= nil then
-        modes = utils.cast2tbl(modes)
-        vim.validate({
-            rhs = { rhs, "f" },
-            modes = { modes, "t" },
-        })
-        ---@cast rhs function
-        local mode_set = sa.new(modes):to_set()
 
-        for _, l in ipairs(lhs) do
-            vim.keymap.set("i", l, function()
-                if mode_set[vim.b.ime_mode] then
-                    rhs()
-                else
-                    utils.feedkey(l)
-                end
-            end, { buffer = true })
+    vim.keymap.set("i", lhs, function()
+        if rhs[vim.b.ime_mode] then
+            rhs[vim.b.ime_mode]()
+        else
+            utils.feedkey(lhs)
         end
-    else
-        vim.validate({ rhs = { rhs, "t" } })
-        ---@cast rhs table<string, function>
-        for _, l in ipairs(lhs) do
-            vim.keymap.set("i", l, function()
-                if rhs[vim.b.ime_mode] then
-                    rhs[vim.b.ime_mode]()
-                else
-                    utils.feedkey(l)
-                end
-            end, { buffer = true })
-        end
-    end
+    end, { buffer = true })
 end
 
----@param lhs string | string[]
+---@param lhs string
 local function del(lhs)
-    lhs = utils.cast2tbl(lhs)
     vim.validate({
-        lhs = { lhs, "t" },
+        lhs = { lhs, "s" },
     })
-    for _, l in ipairs(lhs) do
-        vim.keymap.del("i", l, { buffer = true })
-    end
+    vim.keymap.del("i", lhs, { buffer = true })
 end
 
 function Keymap:set()
-    sa.new(config.get("mappings")):apply(function(x)
-        set(unpack(x))
-    end)
+    for lhs, rhs in pairs(config.get("mappings")) do
+        set(lhs, rhs)
+    end
 end
 
 function Keymap:del()
-    sa.new(config.get("mappings")):apply(function(x)
-        del(x[1])
-    end)
+    for lhs, _ in pairs(config.get("mappings")) do
+        del(lhs)
+    end
 end
 
 return Keymap

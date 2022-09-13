@@ -84,4 +84,20 @@ function action.zenkaku_space()
     utils.feedkey("　")
 end
 
+---@param rhs function
+---@param modes string | string[]
+---@return table<string, function>
+function action.mapping(rhs, modes)
+    vim.validate({
+        rhs = { rhs, "f" },
+        modes = { modes, "t" },
+    })
+    local result = {}
+    for _, mode in ipairs(modes) do
+        vim.validate({ mode = { mode, "s" } })
+        result[mode] = rhs
+    end
+    return result
+end
+
 return action

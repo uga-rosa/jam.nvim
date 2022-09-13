@@ -8,11 +8,20 @@ function M.setup(opt)
         opt = { opt, "t" },
     })
 
-    local default = require("jam.config.default")
+    M.config = require("jam.config.default")
     if opt.disable_default_mappings then
-        default.mappings = {}
+        M.config.mappings = {}
     end
-    M.config = vim.tbl_deep_extend("force", M.config, default, opt)
+
+    for k, v in pairs(opt) do
+        if k == "mappings" then
+            for lhs, rhs in pairs(v) do
+                M.config.mappings[lhs] = rhs
+            end
+        else
+            M.config[k] = v
+        end
+    end
 
     vim.validate({
         ["config.keyLayout"] = { M.config.keyLayout, "s" },
@@ -20,7 +29,7 @@ function M.setup(opt)
         ["config.mappings"] = { M.config.mappings, "t" },
     })
 
-    vim.keymap.set("i", M.config.start_key, M.config._action.start, {})
+    vim.keymap.set("i", M.config.start_key, require("jam").mapping.start, {})
 end
 
 ---@param name string
