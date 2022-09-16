@@ -62,11 +62,15 @@ function InputNode:input(char)
         if result.status == "mistyped" then
             result = next_node.gi:input(char)
             next_node.status = result.status
-            if result.status == "continued" then
+            if result.status == "mistyped" then
+                -- Inputed char that doesn't exist in rules.
+                self.output = self.output .. char
+                self.display = self.output
+                self:update_end()
+            elseif result.status == "continued" then
                 next_node.display = next_node.gi.input_buffer
                 next_node:update_end()
             else
-                -- status must be "finished"
                 next_node.output = result.fixed.output
                 next_node.display = next_node.output
                 next_node:update_end()
@@ -80,6 +84,7 @@ end
 
 ---@param start integer
 function InputNode:_update_end(start)
+    self.start = start
     self.end_ = start + #self.display - 1
 end
 
