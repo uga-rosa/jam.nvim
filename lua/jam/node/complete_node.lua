@@ -1,9 +1,11 @@
+local api = vim.api
+
 local Node = require("jam.node.node")
 local utf8 = require("jam.utils.utf8")
 local utils = require("jam.utils")
 local pum = require("jam.utils.pum")
 
----@alias complete_items {word: string}[]
+---@alias complete_items { word: string }[]
 
 ---@class CompleteNode: Node
 ---@field prev CompleteNode
@@ -12,16 +14,20 @@ local pum = require("jam.utils.pum")
 ---@field origin string
 ---@field candidates complete_items
 ---@field selected_candidate string
+---@field cursor integer
 ---@field session Session
 ---@field skip_count integer
 local CompleteNode = setmetatable({}, { __index = Node })
 
----@param a string[]
+---@param array string[]
+---@param marker string[]
 ---@return complete_items
-local function array2complete_items(a)
-    return vim.tbl_map(function(c)
-        return { word = c }
-    end, a)
+local function array_to_complete_items(array, marker)
+    local candidates = {}
+    for i, w in ipairs(array) do
+        candidates[i] = { word = w, menu = marker[i] }
+    end
+    return candidates
 end
 
 ---@param origin string
@@ -47,7 +53,7 @@ function CompleteNode.new(origin, candidates, col, row, parent, session)
 
     local new = {
         origin = origin,
-        candidates = array2complete_items(candidates),
+        candidates = array_to_complete_items(candidates, session.marker),
         selected_candidate = candidates[1],
         start = col,
         end_ = col + #candidates[1] - 1,
@@ -59,15 +65,63 @@ function CompleteNode.new(origin, candidates, col, row, parent, session)
     return setmetatable(new, { __index = CompleteNode })
 end
 
-function CompleteNode:complete()
-    self:move()
-    pum.open(self.start, self.candidates)
+---@param candidates complete_items
+---@param marker string[]
+---@return integer
+local function max_width(candidates, marker)
+    local max = api.nvim_strwidth(candidates[1].word .. marker[1])
+    for i = 2, #candidates do
+        local width = api.nvim_strwidth(candidates[i].word .. marker[i])
+        if max < width then
+            max = width
+        end
+    end
+    return max + 1
 end
 
----@param delta integer
+function CompleteNode:complete()
+    self:move()
+    pum.set_option("max_width", max_width(self.candidates, self.session.marker))
+    pum.open(self.start, self.candidates)
+    self.cursor = 1
+
+    for i = 1, #self.candidates do
+        local m = self.session.marker[i]
+        vim.keymap.set("i", m, function()
+            self:cursor_set(i)
+        end, { buffer = true })
+    end
+end
+
+function CompleteNode:close()
+    for i = 1, #self.candidates do
+        local m = self.session.marker[i]
+        vim.keymap.del("i", m, { buffer = true })
+    end
+    pum.close()
+end
+
+---@param x number
+---@param min number
+---@param max number
+---@return number
+---@return boolean looped
+local function loop(x, min, max)
+    if x < min then
+        return max, true
+    elseif max < x then
+        return min, true
+    end
+    return x, false
+end
+
+---@param delta 1 | -1
 function CompleteNode:insert_relative(delta)
     pum.map.insert_relative(delta)
-    local selected = pum.selected_word()
+
+    self.cursor = loop(self.cursor + delta, 0, #self.candidates)
+    local index = self.cursor == 0 and 1 or self.cursor
+    local selected = self.candidates[index].word
     self.selected_candidate = selected
     self.end_ = self.start + #selected - 1
     self.skip_count = assert(utf8.len(selected))
@@ -79,6 +133,13 @@ function CompleteNode:insert_relative(delta)
         next = next.next
     end
     self.parent.end_ = self.parent:tail().end_
+end
+
+---@param cursor integer
+function CompleteNode:cursor_set(cursor)
+    if cursor ~= self.cursor then
+        self:insert_relative(cursor - self.cursor)
+    end
 end
 
 ---Fired on InsertCharPre
@@ -137,7 +198,8 @@ end
 ---@param start integer
 ---@return integer
 function CompleteNode:new_candidates(new_candidates, start)
-    self.candidates = array2complete_items(new_candidates)
+    self.candidates = array_to_complete_items(new_candidates, self.session.marker)
+    self.candidates_idx = 1
     self.selected_candidate = new_candidates[1]
     self.start = start
     self.end_ = start + #new_candidates[1] - 1

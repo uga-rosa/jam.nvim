@@ -5,9 +5,9 @@ local InputNodes = require("jam.node.input_nodes")
 local keymap = require("jam.keymap")
 local Convert = require("jam.convert")
 local cgi = require("jam.cgi")
-local pum = require("jam.utils.pum")
 local utils = require("jam.utils")
 local sa = require("jam.utils.safe_array")
+local config = require("jam.config")
 
 local aug_name = "jam"
 
@@ -75,6 +75,8 @@ function Session:reset()
     self.complete_nodes = nil
     self.input_nodes = InputNodes.new(self)
     self.ns_id = api.nvim_create_namespace("jam-nvim")
+    self.marker = config.get("marker")
+    vim.opt_local.completeopt = "noinsert"
 end
 
 function Session:_update_highlight()
@@ -233,7 +235,7 @@ function Session:_convert(get_responce, need_raw)
         local response = self.complete_nodes._response
         response[self:current_c():get_idx()] = get_responce(hiragana, raw_str)[1]
         self.complete_nodes:new_response(response)
-        pum.close()
+        self:current_c():close()
     else
         if self.ime_mode == "Convert" then
             self:cancel()
@@ -269,15 +271,15 @@ end
 
 function Session:cancel()
     self:_mode_validate({ "Complete", "Convert" })
+    self:current_c():close()
     self.complete_nodes:tail():move()
-    pum.close()
     self.input_nodes.end_ = self.complete_nodes.end_
     self:_mode_set("Input")
     self.input_nodes:update_buffer()
     self.complete_nodes = nil
 end
 
----@param delta integer
+---@param delta 1 | -1
 function Session:insert_item(delta)
     self:_mode_validate("Complete")
     self:current_c():insert_relative(delta)
@@ -332,8 +334,8 @@ end
 function Session:confirm()
     self:_mode_validate({ "Input", "Complete", "Convert" })
     if self.ime_mode ~= "Input" then
+        self:current_c():close()
         self.complete_nodes:tail():move()
-        pum.close()
     end
     self:reset()
     self:_mode_set("PreInput")

@@ -120,13 +120,4 @@ end
 
 pum.map = map
 
----==========================================================
----             Original Utilities
----==========================================================
-
-function pum.selected_word()
-    local p = fn["pum#_get"]()
-    return p.cursor > 0 and p.items[p.cursor].word or p.orig_input
-end
-
 return pum
