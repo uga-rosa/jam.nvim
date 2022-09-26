@@ -20,11 +20,13 @@ return {
         ["<C-m>"] = mapping(mapping.confirm, { "Input", "Complete", "Convert" }),
         ["<C-CR>"] = mapping(mapping.confirm, { "Input", "Complete", "Convert" }),
         ["<BS>"] = {
+            PreInput = mapping.exit,
             Input = mapping.backspace,
             Complete = mapping.cancel,
             Convert = mapping.cancel,
         },
         ["<C-h>"] = {
+            PreInput = mapping.exit,
             Input = mapping.backspace,
             Complete = mapping.cancel,
             Convert = mapping.cancel,

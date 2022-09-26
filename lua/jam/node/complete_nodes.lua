@@ -1,5 +1,3 @@
-local api = vim.api
-
 local CompleteNode = require("jam.node.complete_node")
 local Nodes = require("jam.node.nodes")
 local utils = require("jam.utils")
@@ -11,8 +9,6 @@ local sa = require("jam.utils.safe_array")
 ---@field _dummy_head CompleteNode
 ---@field _dummy_tail CompleteNode
 ---@field origin string
----@field start integer
----@field end_ integer
 ---@field session Session
 ---@field _response response
 ---@field current fun(): CompleteNode
@@ -32,11 +28,12 @@ function CompleteNodes.new(origin, res, start_pos, session)
         start_col = { start_pos[2], "n" },
     })
     assert(#res > 0)
-    local start_col = start_pos[2]
+    local start_row, start_col = unpack(start_pos)
 
     local result = setmetatable({
         origin = origin,
         nodes = {},
+        row = start_row,
         start = start_col,
         end_ = start_col + #origin - 1,
         _response = res,
@@ -74,9 +71,7 @@ function CompleteNodes:update_buffer()
             return node.selected_candidate
         end)
         :concat()
-    local current_line = api.nvim_get_current_line()
-    local new_line = utils.insert(current_line, text, self.start, self.end_)
-    api.nvim_set_current_line(new_line)
+    utils.set_text(self.row, self.start, self.end_, text)
     self.start = self:head().start
     self.end_ = self:tail().end_
 end

@@ -1,5 +1,3 @@
-local api = vim.api
-
 local Nodes = require("jam.node.nodes")
 local InputNode = require("jam.node.input_node")
 local utils = require("jam.utils")
@@ -20,9 +18,9 @@ end
 
 function InputNodes:init()
     local pos = utils.get_pos()
+    self.row = pos[1]
     self.start = pos[2]
     self.end_ = pos[2] - 1
-    self.row = pos[1]
     self.session.start_pos = pos
 
     local dummy_head = InputNode.new(self)
@@ -41,7 +39,14 @@ function InputNodes:init()
     self.nodes = { node }
 end
 
+local invalid_char = {
+    [""] = true
+}
+
 function InputNodes:input(char)
+    if invalid_char[char] then
+        return
+    end
     if self.session.ime_mode == "PreInput" then
         if utils.is_whitespace(char) then
             return
@@ -69,12 +74,9 @@ function InputNodes:update_buffer()
     if self.session.ime_mode ~= "Input" then
         return
     end
-    local current_line = api.nvim_get_current_line()
-    current_line = utils.insert(current_line, self.display, self.start, self.end_)
-    api.nvim_set_current_line(current_line)
+    utils.set_text(self.row, self.start, self.end_, self.display)
     self.end_ = self.start + #self.display - 1
     self:current():move()
-    self.session:_update_highlight()
 end
 
 ---@return string
@@ -88,13 +90,11 @@ end
 
 function InputNodes:backspace()
     if self.display == "" then
+        self.session:_mode_set("PreInput")
         return
     end
     local node = self:current()
     if node.display == "" then
-        if not node.prev:is_valid() then
-            return
-        end
         node = node.prev
         self.selected_node = node
         node.next:delete()
@@ -104,6 +104,9 @@ function InputNodes:backspace()
     node:update_end()
     self:update_display()
     self:update_buffer()
+    if self.display == "" then
+        self.session:_mode_set("PreInput")
+    end
 end
 
 function InputNodes:goto_prev()

@@ -5,6 +5,9 @@ local utils = require("jam.utils")
 ---@field selected_node Node
 ---@field _dummy_head Node
 ---@field _dummy_tail Node
+---@field row integer 1-index
+---@field start integer 1-index
+---@field end_ integer 1-index
 local Nodes = {}
 
 ---@return Node

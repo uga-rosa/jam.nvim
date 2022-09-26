@@ -5,24 +5,39 @@ vim.g.loaded_jam = true
 
 require("jam").setup()
 
-local ok, normal = pcall(vim.api.nvim_get_hl_by_name, "Normal", true)
-local bg_1, bg_2
-if ok and normal.background then
-    local bg = normal.background
-    local diff = tonumber("101010", 16)
-    if bg < tonumber("FFFFFF", 16) - 2 * diff then
-        bg_1 = bg + diff
-        bg_2 = bg_1 + diff
-    else
-        bg_1 = bg - diff
-        bg_2 = bg_1 - diff
-    end
-end
+vim.cmd([[
+hi def JamInput cterm=underline guifg=#000000 guibg=#ffffff
+hi def JamCompleteSelected cterm=underline guifg=#000000 guibg=#ffffff
+hi def JamCompleteNotSelected1 cterm=underline guifg=#000000 guibg=#cccccc
+hi def JamCompleteNotSelected2 cterm=underline guifg=#000000 guibg=#999999
+hi def JamConvert cterm=underline
+]])
 
-local set_hl = vim.api.nvim_set_hl
+local api = vim.api
 
-set_hl(0, "JamInput", { underdotted = true })
-set_hl(0, "JamCompleteSelected", { underline = true })
-set_hl(0, "JamCompleteNotSelected1", { underdotted = true, bg = bg_1 })
-set_hl(0, "JamCompleteNotSelected2", { underdotted = true, bg = bg_2 })
-set_hl(0, "JamConvert", { underline = true })
+local aug_name = "jam-nvim"
+api.nvim_create_augroup(aug_name, {})
+
+local cmp_config
+api.nvim_create_autocmd("User", {
+    pattern = "JamStart",
+    callback = function()
+        local ok, cmp = pcall(require, "cmp")
+        if ok then
+            cmp_config = cmp.get_config()
+            cmp.setup({ enabled = false })
+        end
+        vim.b.lexima_disabled = 1
+    end,
+})
+
+api.nvim_create_autocmd("User", {
+    pattern = "JamExit",
+    callback = function()
+        local ok, cmp = pcall(require, "cmp")
+        if ok then
+            cmp.setup({ enabled = cmp_config.enabled })
+        end
+        vim.b.lexima_disabled = 0
+    end,
+})

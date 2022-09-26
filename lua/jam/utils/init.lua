@@ -6,13 +6,15 @@ local sa = require("jam.utils.safe_array")
 
 local utils = {}
 
----@param origin string
----@param word string
----@param start integer
----@param end_ integer
----@return string
-function utils.insert(origin, word, start, end_)
-    return origin:sub(1, start - 1) .. word .. origin:sub(end_ + 1)
+---@param row integer 1-index
+---@param start integer 1-index
+---@param end_ integer 1-index
+---@param text string
+function utils.set_text(row, start, end_, text)
+    row = row - 1
+    start = start - 1
+    -- end_ is exclusive
+    api.nvim_buf_set_text(0, row, start, row, end_, { text })
 end
 
 ---Get current cursor position ((1,1)-index)

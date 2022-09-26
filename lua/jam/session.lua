@@ -53,6 +53,7 @@ function Session:start()
         buffer = 0,
         callback = function()
             self.input_nodes:update_buffer()
+            self:_update_highlight()
         end,
     })
     api.nvim_create_autocmd("InsertLeavePre", {
@@ -65,6 +66,7 @@ function Session:start()
 
     keymap:store()
     keymap:set()
+    vim.cmd("do User JamStart")
 end
 
 function Session:reset()
@@ -72,7 +74,7 @@ function Session:reset()
     self.start_pos = utils.get_pos()
     self.complete_nodes = nil
     self.input_nodes = InputNodes.new(self)
-    self.ns_id = api.nvim_create_namespace("Jam-nvim")
+    self.ns_id = api.nvim_create_namespace("jam-nvim")
 end
 
 function Session:_update_highlight()
@@ -84,7 +86,7 @@ function Session:_update_highlight()
             "JamInput",
             self.input_nodes.row - 1,
             self.input_nodes:head().start - 1,
-            self.input_nodes:tail().end_ - 1
+            self.input_nodes:tail().end_
         )
     elseif self.ime_mode == "Complete" then
         local c = 1
@@ -243,7 +245,6 @@ function Session:_convert(get_responce, need_raw)
     end
     self:_mode_set("Convert")
     self:current_c():move()
-    self:_update_highlight()
 end
 
 function Session:convert_hira()
@@ -270,7 +271,7 @@ function Session:cancel()
     self:_mode_validate({ "Complete", "Convert" })
     self.complete_nodes:tail():move()
     pum.close()
-    self.input_nodes.end_col = self.complete_nodes.end_
+    self.input_nodes.end_ = self.complete_nodes.end_
     self:_mode_set("Input")
     self.input_nodes:update_buffer()
     self.complete_nodes = nil
@@ -344,10 +345,11 @@ function Session:exit()
         self:confirm()
     end
     self:_mode_set("")
-    self:_update_highlight()
     api.nvim_create_augroup(aug_name, { clear = true })
+    api.nvim_buf_clear_namespace(0, self.ns_id, 0, -1)
     keymap:del()
     keymap:restore()
+    vim.cmd("do User JamExit")
 end
 
 return Session
