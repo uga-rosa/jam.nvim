@@ -6,11 +6,11 @@ vim.g.loaded_jam = true
 require("jam").setup()
 
 vim.cmd([[
-hi def JamInput cterm=underline guifg=#000000 guibg=#ffffff
-hi def JamCompleteSelected cterm=underline guifg=#000000 guibg=#ffffff
-hi def JamCompleteNotSelected1 cterm=underline guifg=#000000 guibg=#cccccc
-hi def JamCompleteNotSelected2 cterm=underline guifg=#000000 guibg=#999999
-hi def JamConvert cterm=underline
+hi def JamInput guifg=#000000 guibg=#ffffff
+hi def JamCompleteSelected guifg=#000000 guibg=#ffffff
+hi def JamCompleteNotSelected1 guifg=#000000 guibg=#cccccc
+hi def JamCompleteNotSelected2 guifg=#000000 guibg=#999999
+hi def JamConvert guifg=#000000 guibg=#ffffff
 ]])
 
 local api = vim.api
