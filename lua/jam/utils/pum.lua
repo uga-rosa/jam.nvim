@@ -4,7 +4,7 @@ local pum = {}
 
 ---Close current popup menu.
 function pum.close()
-    fn["pum#close"]()
+  fn["pum#close"]()
 end
 
 ---Returns `Dictionary` like `complete_info()`.
@@ -13,7 +13,7 @@ end
 ---@param what? table
 ---@return table
 function pum.complete_info(what)
-    return fn["pum#complete_info"](what)
+  return fn["pum#complete_info"](what)
 end
 
 ---Returns like `pum_getpos()` result.
@@ -24,7 +24,7 @@ end
 ---     size		total number of items
 ---     scrollbar	v:false
 function pum.get_pos()
-    fn["pum#get_pos"]()
+  fn["pum#get_pos"]()
 end
 
 ---Open popup menu like `complete()`.
@@ -50,7 +50,7 @@ end
 ---@param startcol integer #1-index
 ---@param items table #`:h complete-items`
 function pum.open(startcol, items)
-    fn["pum#open"](startcol, items)
+  fn["pum#open"](startcol, items)
 end
 
 ---Set {option-name} option to {value}.
@@ -60,20 +60,20 @@ end
 ---@param value unknown
 ---@overload fun(dict: table)
 function pum.set_option(option_name, value)
-    fn["pum#set_option"](option_name, value)
+  fn["pum#set_option"](option_name, value)
 end
 
 ---If it is `v:true`, auto completion plugin must be skipped auto
 ---completion.
 ---@return boolean
 function pum.skip_complete()
-    return fn["pum#skip_complete"]()
+  return fn["pum#skip_complete"]()
 end
 
 ---Returns `v:true` if the popup menu is visible like pumvisible()`.
 ---@return boolean
 function pum.visible()
-    return fn["pum#visible"]()
+  return fn["pum#visible"]()
 end
 
 local map = {}
@@ -81,41 +81,41 @@ local map = {}
 ---Cancel the select and close the popup.
 ---Note: It must not be called in `:map-<expr>`.
 function map.cancel()
-    fn["pum#map#cancel"]()
+  fn["pum#map#cancel"]()
 end
 
 ---Insert the select and close the popup.
 ---Note: It must not be called in `:map-<expr>`.
 function map.confirm()
-    fn["pum#map#confirm"]()
+  fn["pum#map#confirm"]()
 end
 
 ---Move forward or backward {delta} number and insert the
 ---candidate.
 ---Note: It must not be called in `:map-<expr>`.
 function map.insert_relative(delta)
-    fn["pum#map#insert_relative"](delta)
+  fn["pum#map#insert_relative"](delta)
 end
 
 ---Move forward or backward "{delta} * page height" number and
 ---insert the candidate.
 ---Note: It must not be called in `:map-<expr>`.
 function map.insert_relative_page(delta)
-    fn["pum#map#insert_relative_page"](delta)
+  fn["pum#map#insert_relative_page"](delta)
 end
 
 ---Move forward or backward {delta} number and select the
 ---candidate.
 ---Note: It must not be called in `:map-<expr>`.
 function map.select_relative(delta)
-    fn["pum#map#select_relative"](delta)
+  fn["pum#map#select_relative"](delta)
 end
 
 ---Move forward or backward "{delta} * page height" number and
 ---select the candidate.
 ---Note: It must not be called in `:map-<expr>`.
 function map.select_relative_page(delta)
-    fn["pum#map#select_relative_page"](delta)
+  fn["pum#map#select_relative_page"](delta)
 end
 
 pum.map = map
